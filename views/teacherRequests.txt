@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/teacherLogoutModal.css">
+    <link rel="stylesheet" href="/css/teacherRequests.css">
+    <link rel="stylesheet" href="/css/adviserDashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/homepage.png" class="nav-img" alt="homepage">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionStudManage">
+                        <img src="/images/student accounts.png" class="nav-img" alt="student management">
+                        <h3>Student Management</h3>
+                    </div>
+                    <div class="nav-option optionSection">
+                        <img src="/images/section head.png" class="nav-img" alt="section">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="category">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/requests.png" class="nav-img" alt="request">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <section class="request-main">
+        </section>
+    </div>
+    <div id="modalContainer"></div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='adviserProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" src="/js/adviserProfile.js"></script>
+    <script type="module" src="/js/adviserLogout.js"></script>
+    <script rel="javascript" src="/js/teacherRequests.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const mainSection = document.querySelector('.request-main');
+            const modalContainer = document.getElementById('modalContainer');
+
+            function createRectBox(bookData, index) {
+                const rectBox = document.createElement('div');
+                rectBox.className = 'rect-box-modal';
+
+                const title = document.createElement('h3');
+                title.className = 'view-research-title';
+
+                let displayTitle = bookData.title || 'Untitled Research';
+                if (displayTitle.length > 60) {
+                    displayTitle = displayTitle.substring(0, 57) + '...';
+                }
+                title.textContent = displayTitle;
+
+                rectBox.appendChild(title);
+
+                const statusElement = document.createElement('p');
+                statusElement.className = 'view-research-status';
+                statusElement.textContent = `Status: ${bookData.state || 'Unknown'}`;
+
+                switch (bookData.state) {
+                    case 'Pending':
+                        statusElement.style.color = 'orange';
+                        break;
+                    case 'Approved':
+                        statusElement.style.color = 'green';
+                        break;
+                    case 'Returned':
+                        statusElement.style.color = 'red';
+                        break;
+                    default:
+                        statusElement.style.color = 'black';
+                }
+
+                rectBox.appendChild(statusElement);
+
+                const viewButton = document.createElement('button');
+                viewButton.className = 'modal-view-button';
+                viewButton.textContent = 'View Requests';
+                viewButton.addEventListener('click', () => {
+                    openModal(bookData, index);
+                });
+                rectBox.appendChild(viewButton);
+
+                mainSection.appendChild(rectBox);
+            }
+
+            function openModal(bookData, index) {
+                const studentUID = bookData.uid;
+                const accountRef = ref(db, `accounts/${studentUID}`);
+
+                onValue(accountRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const accountData = snapshot.val();
+                        const section = accountData.section || 'No Section Available';
+
+                        const leader = bookData.authors[0];
+                        const members = bookData.authors.slice(1);
+                        const modalId = `researchRequest-${index}`;
+
+                        const modalHtml = `
+            <div id="${modalId}" class="modal research-request-of-stud active">
+                <div class="modal-content">
+                    <div class="modal-left">
+                        <h3 class="modal-title">${bookData.title || 'Untitled Research'}</h3>
+                        <h4 class="modal-section">Section: <span class="modal-course-section">${section}</span></h4>
+                        <h4 class="modal-group-leader">Group Leader: <span class="modal-leader-name">${leader.firstName} ${leader.lastName}</span></h4>
+                        <h4 class="modal-group-members">Group Members: 
+                            <span class="modal-member-names">
+                                ${members.map(member => `${member.firstName} ${member.lastName}`).join('<br>')}
+                            </span>
+                        </h4>
+                        <h4 class="modal-soft-copy">Soft Copy:</h4>
+                        <p class="modal-imrad-link">IMRAD: <a href="${bookData.url || '#'}" target="_blank">View IMRAD</a></p>
+                        <p class="modal-abstract-link">Abstract: <a href="${bookData.abstracturl || '#'}" target="_blank">View Abstract</a></p>
+                        <button id="approve-${index}" class="approve-btn" ${bookData.state === 'Approved' || bookData.state === 'Returned' ? 'disabled' : ''}>APPROVE</button>
+                        <button id="return-${index}" class="return-btn" disabled>RETURN</button>
+                    </div>
+                    <div class="modal-right">
+                        <h4 class="modal-return-details-title">RETURN DETAILS</h4>
+                        <textarea id="returnDetails-${index}" rows="6" class="modal-return-details" style="width: 100%;" ${bookData.state === 'Returned' || bookData.state === 'Approved' ? 'disabled' : ''}></textarea>
+                        <button id="submit-${index}" class="submit-btn" disabled>SUBMIT</button>
+                    </div>
+                </div>
+            </div>
+            `;
+
+                        modalContainer.innerHTML = modalHtml;
+
+                        const modal = document.getElementById(modalId);
+                        const approveBtn = document.getElementById(`approve-${index}`);
+                        const returnBtn = document.getElementById(`return-${index}`);
+                        const submitBtn = document.getElementById(`submit-${index}`);
+                        const returnDetailsInput = document.getElementById(`returnDetails-${index}`);
+                        let hasUnsavedChanges = false; // Track unsaved changes
+
+                        if (bookData.state === 'Returned' && bookData.returnedDetails) {
+                            returnDetailsInput.value = bookData.returnedDetails;
+                            returnDetailsInput.disabled = true; // Make textarea uneditable
+                        }
+
+                        returnDetailsInput.addEventListener('input', () => {
+                            hasUnsavedChanges = returnDetailsInput.value.trim() !== ''; // Update unsaved changes state
+                            submitBtn.disabled = returnDetailsInput.value.trim() === '';
+                        });
+
+                        submitBtn.addEventListener('click', () => {
+                            const returnDetails = returnDetailsInput.value.trim();
+                            if (returnDetails === '') {
+                                console.log("Return details are required to proceed.");
+                                return;
+                            }
+
+                            returnBtn.disabled = false;
+                            returnBtn.setAttribute('data-return-details', returnDetails);
+                            hasUnsavedChanges = true; // Saved the changes
+                            returnDetailsInput.disabled = true; // Disable the textarea to make it uneditable
+                            submitBtn.disabled = true;
+                            approveBtn.disabled = true;
+                        });
+
+                        returnBtn.addEventListener('click', () => {
+                            const returnDetails = returnBtn.getAttribute('data-return-details');
+
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: `Do you want to return the "${bookData.title}"?`,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, return it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    const bookRef = ref(db, `Books/${bookData.id}`);
+                                    const returnTimestamp = Date.now();
+
+                                    update(bookRef, {
+                                        returnDate: returnTimestamp,
+                                        returnedDetails: returnDetails,
+                                        state: 'Returned'
+                                    })
+                                        .then(() => {
+                                            console.log(`Book state updated to 'Returned' for: ${bookData.title}`);
+
+                                            returnDetailsInput.value = returnDetails; // Set the textarea value
+                                            returnDetailsInput.disabled = true; // Make textarea uneditable
+                                            returnBtn.disabled = true; // Disable the return button after returning
+                                            submitBtn.disabled = true; // Disable submit button as well
+                                            hasUnsavedChanges = false;
+
+                                            Swal.fire({
+                                                title: 'Success!',
+                                                text: `The book "${bookData.title}" has been returned successfully.`,
+                                                icon: 'success',
+                                                confirmButtonText: 'OK'
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            console.error("Error updating return details:", error);
+                                            Swal.fire({
+                                                title: 'Error!',
+                                                text: 'There was a problem returning the book. Please try again.',
+                                                icon: 'error',
+                                                confirmButtonText: 'OK'
+                                            });
+                                        });
+                                }
+                            });
+                        });
+
+                        approveBtn.addEventListener('click', () => {
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: `Are you done checking the "${bookData.title}" and want to approve it?`,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, approve it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    const bookRef = ref(db, `Books/${bookData.id}`);
+                                    const currentTimestamp = Date.now();
+
+                                    update(bookRef, {
+                                        state: 'Approved',
+                                        approveDate: currentTimestamp
+                                    })
+                                        .then(() => {
+                                            console.log(`Book state updated to 'Approved' for: ${bookData.title}`);
+                                            modal.style.display = 'none';
+                                            returnBtn.disabled = false;
+
+                                            Swal.fire({
+                                                title: 'Approved!',
+                                                text: `The "${bookData.title}" has been approved.`,
+                                                icon: 'success',
+                                                confirmButtonText: 'OK'
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            console.error("Error updating book state:", error);
+                                        });
+                                }
+                            });
+                        });
+
+                        modal.addEventListener('click', (event) => {
+                            if (event.target === modal) {
+                                if (hasUnsavedChanges) {
+                                    Swal.fire({
+                                        title: 'Warning!',
+                                        text: 'You have unsaved changes. Are you sure you want to close the modal?',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Yes, close it!',
+                                        cancelButtonText: 'No, stay here'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            modal.style.display = 'none';
+                                        }
+                                    });
+                                } else {
+                                    modal.style.display = 'none'; // Close modal if there are no unsaved changes
+                                }
+                            }
+                        });
+
+                        modal.style.display = 'flex';
+                    } else {
+                        console.error("No account data found for this UID");
+                    }
+                });
+            }
+
+            function fetchBooksForAdviser(uid) {
+                const booksRef = ref(db, 'Books');
+                onValue(booksRef, (snapshot) => {
+                    mainSection.innerHTML = '';
+                    if (snapshot.exists()) {
+                        const books = snapshot.val();
+                        let index = 0;
+                        for (const bookId in books) {
+                            const bookData = books[bookId];
+                            if (bookData.adviserUID === uid) {
+                                createRectBox(bookData, index);
+                                index++;
+                            }
+                        }
+                    } else {
+                        console.log("No books found for this adviser.");
+                    }
+                });
+            }
+
+            const userUID = sessionStorage.getItem("userUID");
+            if (userUID) {
+                fetchBooksForAdviser(userUID);
+            } else {
+                console.log("No user UID found in sessionStorage.");
+            }
+        });
+    </script>
+</body>
+
+</html>

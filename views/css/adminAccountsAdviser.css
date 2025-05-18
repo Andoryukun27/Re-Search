@@ -1,0 +1,420 @@
+.main-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color4);
+    margin-left: -40px;
+    margin-top: -40px;
+    padding: 38px;
+    width: inherit;
+    gap: 20px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 550px;
+    width: 100%;
+}
+
+.search-icon {
+    width: 22px;
+    height: 22px;
+    margin-left: 10px;
+    pointer-events: none;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    padding: 12px 12px 10px 10px;
+    flex-grow: 1;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.clear-icon {
+    font-size: 24px;
+    color: #888;
+    cursor: pointer;
+    display: none;
+    margin-left: 10px;
+}
+
+.clear-icon:hover {
+    color: #000;
+}
+
+.search-button {
+    padding: 12px 20px;
+    border: none;
+    background-color: var(--one-use-color);
+    color: white;
+    cursor: pointer;
+    border-radius: 0 8px 8px 0;
+    margin-left: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: var(--two-use-color);
+}
+
+.search-select {
+    border: none;
+    outline: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    font-size: 14px;
+    margin-left: 20px;
+}
+
+.search-input:focus,
+.search-select:focus,
+.search-button:focus {
+    outline: none;
+}
+
+.adviser-button {
+    padding: 10px 15px;
+    background-color: var(--one-use-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 1%;
+    transition: background-color 0.3s ease;
+}
+
+.adviser-button:hover {
+    background-color: var(--two-use-color);
+}
+
+.adviser-modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.adviser-content {
+    background-color: var(--background-color4);
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.adviser-content h2 {
+    margin-bottom: 25px;
+    font-size: 26px;
+    color: #cc5500;
+    text-align: center;
+}
+
+.search-select option {
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.adviser-button {
+    padding: 10px 15px;
+    background-color: var(--one-use-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 1%;
+    transition: background-color 0.3s ease;
+}
+
+.adviser-button:hover {
+    background-color: var(--two-use-color);
+}
+
+.adviser-modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.adviser-content {
+    background-color: var(--background-color4);
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.adviser-content h2 {
+    margin-bottom: 25px;
+    font-size: 26px;
+    color: #cc5500;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cc5500;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #ff7000;
+}
+
+.adviser-content .button-group {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.adviser-content .button-save {
+    background-color: #ff7000;
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+    margin-right: 10px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.adviser-content .button-save:hover {
+    background-color: #cc5500;
+    transform: scale(1.05);
+}
+
+.adviser-content .button-cancel {
+    background-color: #999999;
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+    margin-left: 10px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.adviser-content .button-cancel:hover {
+    background-color: #777777;
+    transform: scale(1.05);
+}
+
+.edit-icon {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+.delete-icon {
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+}
+
+#edit-adviser-modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+#edit-adviser-modal .edit-modal-content {
+    background-color: var(--background-color4);
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin: auto;
+}
+
+#edit-adviser-modal h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+#edit-adviser-modal label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+
+#edit-adviser-modal input[type="text"],
+#edit-adviser-modal input[type="email"],
+#edit-adviser-modal select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+#edit-adviser-modal .edit-form-group {
+    margin-bottom: 15px;
+}
+
+.edit-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.edit-checkbox-group label {
+    margin-right: 10px;
+    font-weight: 500;
+    color: #555;
+}
+
+#edit-adviser-modal .edit-button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#edit-adviser-modal .edit-button-group button {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    margin: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#edit-adviser-modal .edit-button-save {
+    background-color: #ff7000;
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+    margin-right: 10px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+#edit-adviser-modal .edit-button-save:hover {
+    background-color: #cc5500;
+    transform: scale(1.05);
+}
+
+#edit-adviser-modal .edit-button-cancel {
+    background-color: #999999;
+    color: #fff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    flex: 1;
+    margin-left: 10px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+#edit-adviser-modal .edit-button-cancel:hover {
+    background-color: #777777;
+    transform: scale(1.05);
+}
+
+.teacher-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.teacher-table th,
+.teacher-table td {
+    border: 1px solid var(--two-use-color);
+    padding: 8px;
+}
+
+.teacher-table th {
+    background-color: var(--primary-color);
+    text-align: center;
+    color: white;
+}
+
+.teacher-table td {
+    color: #2C2C2C;
+    text-align: center;
+}
+
+.teacher-table tr:nth-child(odd) {
+    background-color: var(--background-color1);
+}
+
+.teacher-table tr:nth-child(even) {
+    background-color: var(--Border-color);
+}
+
+.teacher-th-centered {
+    text-align: center;
+}

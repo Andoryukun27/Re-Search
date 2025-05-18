@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+    <link rel="stylesheet" href="/css/adminRequest.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="categories">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main" id="request-container">
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script rel="javascript" src="/js/adminListofRequests.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref as dbRef, get } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+        const storage = getStorage();
+
+        const advisersData = {}; // Declare this globally
+
+        function loadAdviserRequestData() {
+            const booksRef = dbRef(db, 'Books');
+
+            get(booksRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const booksData = snapshot.val();
+                    const requestsContainer = document.getElementById('request-container');
+                    requestsContainer.innerHTML = ''; // Clear previous data
+
+                    for (const bookUid in booksData) {
+                        const requestData = booksData[bookUid];
+                        if (requestData.oldBooks === true) continue;
+
+                        const userUID = sessionStorage.getItem('userUID');
+                        if (requestData.uid === userUID) continue;
+
+                        const adviserUID = requestData.adviserUID;
+                        const adviserName = requestData.researchTeacher;
+                        const state = requestData.state || 'Pending'; // Default state to 'Pending' if not found
+
+                        if (!advisersData[adviserUID]) {
+                            advisersData[adviserUID] = {
+                                name: adviserName,
+                                email: '',
+                                totalApproved: 0,
+                                totalReturned: 0,
+                                totalPending: 0,
+                                researchData: []
+                            };
+                        }
+
+                        if (state === 'Approved') {
+                            advisersData[adviserUID].totalApproved++;
+                        } else if (state === 'Returned') {
+                            advisersData[adviserUID].totalReturned++;
+                        } else {
+                            advisersData[adviserUID].totalPending++;
+                        }
+
+                        advisersData[adviserUID].researchData.push({
+                            title: requestData.title || 'No title',
+                            course: requestData.courseName || 'No course',
+                            authors: requestData.authors || [],
+                            year: requestData.year || 'No year',
+                            state: requestData.state || 'Pending'
+                        });
+                    }
+
+                    for (const adviserUID in advisersData) {
+                        const adviserInfo = advisersData[adviserUID];
+
+                        const requestContainer = document.createElement('div');
+                        requestContainer.classList.add('request-container');
+
+                        requestContainer.innerHTML = `
+                        <div class="request-info">
+                            <h3 id="adviserName-${adviserUID}">Loading...</h3>
+                            <p id="adviserEmail-${adviserUID}" class="request-email" style="font-style: italic;">Loading...</p>
+                            <button class="btn-view-research-lists" onclick="viewResearchLists('${adviserUID}')">View Research Lists</button>
+                        </div>
+                        <div class="request-status">
+                            <p>Approved: <span id="approved-${adviserUID}">${adviserInfo.totalApproved}</span></p>
+                            <p>For Revisions: <span id="returned-${adviserUID}">${adviserInfo.totalReturned}</span></p>
+                            <p>Pending: <span id="pending-${adviserUID}">${adviserInfo.totalPending}</span></p>
+                        </div>
+                    `;
+                        requestsContainer.appendChild(requestContainer);
+
+                        const adviserRef = dbRef(db, `Research Teacher/${adviserUID}`);
+                        get(adviserRef).then(adviserSnapshot => {
+                            if (adviserSnapshot.exists()) {
+                                const adviserData = adviserSnapshot.val();
+                                document.getElementById(`adviserName-${adviserUID}`).textContent = adviserData.name;
+                                document.getElementById(`adviserEmail-${adviserUID}`).textContent = adviserData.email;
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        window.viewResearchLists = function (adviserUID) {
+            const booksRef = dbRef(db, 'Books');
+
+            get(booksRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const booksData = snapshot.val();
+                    let researchModal = document.getElementById('research-modal');
+
+                    if (!researchModal) {
+                        researchModal = document.createElement('div');
+                        researchModal.id = 'research-modal';
+                        researchModal.classList.add('research-modal');
+                        researchModal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeResearchModal()">&times;</span>
+                <h2 id="researchTitle">Loading...</h2>
+                <table class="research-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Course</th>
+                            <th>Authors</th>
+                            <th>Date Uploaded</th>
+                            <th>Date Approved</th>
+                            <th>Date Revisioned</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="research-table-body"></tbody>
+                </table>
+            </div>`;
+                        document.body.appendChild(researchModal);
+                    }
+
+                    const tableBody = document.getElementById('research-table-body');
+                    tableBody.innerHTML = ''; // Clear previous data
+
+                    for (const bookUid in booksData) {
+                        const bookData = booksData[bookUid];
+
+                        if (bookData.oldBooks === true) continue;
+
+                        if (bookData.adviserUID === adviserUID) {
+                            document.getElementById('researchTitle').textContent = `Research Lists for ${bookData.researchTeacher}`;
+
+                            const authorsFormatted = formatAuthors(bookData.authors || []);
+
+                            const uploadDateFormatted = bookData.uploadDate ? formatDate(bookData.uploadDate) : 'N/A';
+                            const approveDateFormatted = bookData.approveDate ? formatDate(bookData.approveDate) : 'N/A';
+                            const returnDateFormatted = bookData.returnDate ? formatDate(bookData.returnDate) : 'N/A';
+
+                            const newRow = `
+            <tr>
+                <td>${bookData.title || 'No title'}</td>
+                <td>${bookData.courseName || 'No course'}</td>
+                <td>${authorsFormatted}</td>
+                <td>${uploadDateFormatted}</td>
+                <td>${approveDateFormatted}</td>
+                <td>${returnDateFormatted}</td>
+                <td>${bookData.state || 'Pending'}</td>
+            </tr>`;
+                            tableBody.insertAdjacentHTML('beforeend', newRow);
+                        }
+                    }
+
+                    researchModal.style.display = 'block'; // Show the modal
+                }
+            });
+        };
+
+        function formatAuthors(authors) {
+            return authors.map(author => `${author.firstName} ${author.lastName}`).join(', ');
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp * 1); // Convert from Unix timestamp (seconds) to milliseconds
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        window.closeResearchModal = function () {
+            const researchModal = document.getElementById('research-modal');
+            if (researchModal) {
+                researchModal.style.display = 'none';
+            }
+        };
+
+        window.addEventListener('load', () => {
+            loadAdviserRequestData();
+        });
+    </script>
+
+</body>
+
+</html>

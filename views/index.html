@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Re-Search</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+  <div class="background"></div>
+  <div class="login-container">
+    <div class="logo-container">
+      <img src="/images/Sarmiento.png" alt="Sarmiento School Logo" class="school-logo">
+    </div>
+    <div class="container">
+      <form id="LoginForm">
+        <h2>Re-Search Login</h2>
+        <label for="email"><b>Email</b></label>
+        <input type="text" id="email" name="email" autocomplete="off" aria-label="Email">
+        <label for="password"><b>Password</b></label>
+        <div class="password-container">
+          <input type="password" id="password" name="password" aria-label="Password">
+          <span class="password-toggle-icon" aria-label="Toggle password visibility">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+        <div class="g-recaptcha" data-sitekey="6Ld-_3oqAAAAAKX44hAZe8x3yBQo3puCOWLEUDAZ" data-size="normal"></div>
+        <p><a href="#" id="forgotPasswordLink"><u>Forgot Password?</u></a></p>
+        <button type="submit" id="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+  <div id="forgotPasswordModal" class="forgot-password-modal">
+    <div class="modal-content">
+      <h2>Forgot Password</h2>
+      <input type="text" id="forgotPasswordEmail" placeholder="Enter your email" autocomplete="off" aria-label="Email">
+      <div class="g-recaptcha" data-sitekey="6LdNCXsqAAAAADk48EJ5jTRckYtpc27wJqC1ji9i" data-size="invisible"
+        data-callback="onSubmit"></div>
+      <button id="resetPasswordBtn" class="btn btn-primary" type="button">Send Reset Link</button>
+    </div>
+  </div>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getDatabase, get, ref, child, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+      authDomain: "re-search-9c52f.firebaseapp.com",
+      databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+      projectId: "re-search-9c52f",
+      storageBucket: "re-search-9c52f.appspot.com",
+      messagingSenderId: "915263512573",
+      appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+      measurementId: "G-R0Y7ZMM3XV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+    const auth = getAuth();
+    const dbref = ref(db);
+
+    const EmailInp = document.getElementById('email');
+    const PasswordInp = document.getElementById('password');
+    const loginForm = document.getElementById('LoginForm');
+    const togglePassword = document.querySelector(".password-toggle-icon i");
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+
+    togglePassword.addEventListener("click", function () {
+      if (PasswordInp.type === "password") {
+        PasswordInp.type = "text";
+        togglePassword.classList.remove("fa-eye");
+        togglePassword.classList.add("fa-eye-slash");
+      } else {
+        PasswordInp.type = "password";
+        togglePassword.classList.remove("fa-eye-slash");
+        togglePassword.classList.add("fa-eye");
+      }
+    });
+
+    const modal = document.getElementById("forgotPasswordModal");
+    const forgotPasswordBtn = document.getElementById("resetPasswordBtn");
+    const forgotPasswordEmail = document.getElementById("forgotPasswordEmail");
+
+    const clearForgotPasswordInputs = () => {
+      forgotPasswordEmail.value = "";
+      grecaptcha.reset(); // Reset reCAPTCHA
+    };
+
+    forgotPasswordLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      modal.style.display = "block";
+      clearForgotPasswordInputs();
+    });
+
+    forgotPasswordBtn.addEventListener("click", async () => {
+      const email = forgotPasswordEmail.value.trim();
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        Swal.fire("Invalid Email", "Please enter a valid email address.", "error");
+        return;
+      }
+
+      try {
+        const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+
+        if (signInMethods.length === 0) {
+          Swal.fire("User Not Found", "No user found with this email address.", "error");
+          return;
+        }
+
+        grecaptcha.execute();
+      } catch (error) {
+        Swal.fire("Error", "Failed to check email. Please try again.", "error");
+      }
+    });
+
+    window.onSubmit = function () {
+      const email = forgotPasswordEmail.value.trim();
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          Swal.fire("Success", "Password reset link sent to your email.", "success");
+          modal.style.display = "none";
+        })
+        .catch((error) => {
+          Swal.fire("Error", "Error sending reset link.", "error");
+        });
+    };
+
+    document.getElementById("forgotPasswordLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      modal.style.display = "block";
+      clearForgotPasswordInputs();
+    });
+
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+        clearForgotPasswordInputs();
+      }
+    };
+
+    const checkUserRoleAndRedirect = async (uid) => {
+      try {
+        const adminSnapshot = await get(child(dbref, `Admins/${uid}`));
+        if (adminSnapshot.exists()) {
+          sessionStorage.setItem('userUID', uid); // Store UID after confirming role
+          window.location.href = "adminDashboard.html";
+          return;
+        }
+
+        const teacherSnapshot = await get(child(dbref, `Research Teacher/${uid}`));
+        if (teacherSnapshot.exists()) {
+          const teacherData = teacherSnapshot.val();
+
+          if (teacherData.status === "Inactive") {
+            Swal.fire({
+              title: "This account has been disabled",
+              html: `
+            <p>Why do I see this issue?</p>
+            <ul style="text-align:left;">
+              <li>Your account has been temporarily disabled.</li>
+              <li>You no longer have access to the system.</li>
+              <li>Ask the CRDU head for more information.</li>
+            </ul>
+            <button id="reactivateAccountBtn" style="margin-top: 20px;">Reactivate Account</button>
+          `,
+              icon: "warning",
+              showConfirmButton: false,
+            });
+
+            document.getElementById("reactivateAccountBtn").addEventListener("click", async () => {
+              try {
+                const updates = {};
+                updates[`Research Teacher/${uid}/status`] = "Active";
+                await update(ref(db), updates);
+
+                Swal.fire({
+                  title: "Account Reactivated",
+                  text: "Your account has been reactivated. Please log in again.",
+                  icon: "success",
+                  confirmButtonText: "OK",
+                }).then(() => {
+                  sessionStorage.removeItem("userUID"); // Clear any session UID
+                  window.location.href = "index.html"; // Redirect to the login page
+                });
+              } catch (error) {
+                Swal.fire("Error", "Failed to reactivate the account. Please try again later.", "error");
+              }
+            });
+
+            return; // Do not proceed further for inactive accounts
+          }
+
+          sessionStorage.setItem("userUID", uid); // Store UID if the teacher is active
+          window.location.href = "adviserDashboard.html";
+          return;
+        }
+
+        alert("No user record found.");
+      } catch (error) {
+        alert("Error checking user data: " + error.message);
+      }
+    };
+
+    const signInUser = async (evt) => {
+      evt.preventDefault();
+
+      const email = EmailInp.value.trim();
+      const password = PasswordInp.value;
+
+      if (!email || !password) {
+        Swal.fire("Missing Information", "Please enter both email and password.", "warning");
+        return;
+      }
+
+      const recaptchaToken = grecaptcha.getResponse();
+      if (!recaptchaToken) {
+        Swal.fire("reCAPTCHA Required", "Please verify you are not a robot.", "error");
+        return;
+      }
+
+      try {
+        const credentials = await signInWithEmailAndPassword(auth, email, password);
+        const uid = credentials.user.uid;
+        sessionStorage.setItem('userUID', uid); // Store UID
+
+        checkUserRoleAndRedirect(uid);
+      } catch (error) {
+        const messages = {
+          "auth/user-not-found": "No account found with this email.",
+          "auth/wrong-password": "Incorrect password. Please try again.",
+          "auth/invalid-email": "The email address is not valid.",
+          "auth/too-many-requests": "Too many failed attempts. Please try again later."
+        };
+        Swal.fire("Login Error", messages[error.code] || "Error signing in. Please try again.", "error");
+      }
+    };
+
+    const sessionUID = sessionStorage.getItem('userUID');
+    if (sessionUID) {
+      checkUserRoleAndRedirect(sessionUID);
+    }
+
+    loginForm.addEventListener('submit', signInUser);
+  </script>
+
+</body>
+
+</html>

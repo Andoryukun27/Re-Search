@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/adminAccounts.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="categories">
+                        <h3>Categories</h3>
+                    </div>
+
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="main-header">
+                <div class="search-container">
+                    <img src="/images/search.png" class="search-icon" alt="search icon">
+                    <input type="text" class="search-input" id="search-bar" placeholder="Search a student">
+                    <span class="clear-icon" id="clear-icon">&times;</span>
+                    <button class="search-button" id="search-button">Search</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="student-table" id="student-table">
+                    <tbody class="tbody1" id="tbody1"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="viewFavoritesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Favorites</h2>
+            <table id="favoritesTable" class="favorites-table">
+                <thead>
+                    <tr>
+                        <th>Book ID</th>
+                        <th>Title</th>
+                        <th>Adviser</th>
+                        <th>Authors</th>
+                    </tr>
+                </thead>
+                <tbody id="favoritesList"></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script src="/js/adminStudents.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+        import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getDatabase(app);
+        const firestore = getFirestore(app);
+        const storage = getStorage();
+
+        let allStudents = [];
+
+        const searchBar = document.getElementById('search-bar');
+        const clearIcon = document.getElementById('clear-icon');
+        const searchButton = document.getElementById('search-button');
+        const tbody = document.getElementById('tbody1');
+
+        searchBar.addEventListener('input', () => {
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        });
+
+        clearIcon.addEventListener('click', () => {
+            searchBar.value = '';
+            clearIcon.style.display = 'none';
+            searchBar.focus();
+            loadStudents();
+        });
+
+        searchButton.addEventListener('click', updateTableWithEntries);
+        searchBar.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                updateTableWithEntries();
+            }
+        });
+
+        function createTableHeader() {
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const headers = ["Student No", "Full Name", "Gender", "Section", "Email", "Favorites"];
+
+            headers.forEach(headerText => {
+                const th = document.createElement("th");
+                th.className = "student-th-centered";
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+
+            thead.appendChild(headerRow);
+            return thead;
+        }
+
+        function initializeTable() {
+            const studentTable = document.getElementById('student-table');
+            studentTable.appendChild(createTableHeader());
+            tbody.innerHTML = ""; // Clear existing tbody content if necessary
+        }
+
+        function AddItemToTable(stdNo, name, gender, section, email, studUid) {
+            const trow = document.createElement("tr");
+            trow.innerHTML = `
+        <td data-label="Student No">${stdNo}</td>
+        <td data-label="Full Name">${name}</td>
+        <td data-label="Gender">${gender}</td>
+        <td data-label="Section">${section}</td>
+        <td data-label="Email">${email}</td>
+        <td data-label="Favorites"><img src="/images/eye.png" class="eye-icon" data-stud-uid="${studUid}" alt="View Favorites"></td>
+    `;
+            tbody.appendChild(trow);
+        }
+
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('eye-icon')) {
+                const studUid = event.target.getAttribute('data-stud-uid');
+                viewFavorites(studUid);
+            }
+        });
+
+        function updateTableWithEntries() {
+            const searchValue = searchBar.value.toLowerCase();
+            const filteredStudents = allStudents.filter(student => {
+                return student.studentno.toLowerCase().includes(searchValue) ||
+                    student.fullname.toLowerCase().includes(searchValue) ||
+                    student.section.toLowerCase().includes(searchValue) ||
+                    student.email.toLowerCase().includes(searchValue);
+            });
+
+            tbody.innerHTML = ""; // Clear existing tbody content
+
+            filteredStudents.forEach(student => {
+                AddItemToTable(student.studentno, student.fullname, student.gender, student.section, student.email, student.uid);
+            });
+        }
+
+        function loadStudents() {
+            const studentsRef = ref(db, 'accounts');
+            onValue(studentsRef, (snapshot) => {
+                allStudents = [];
+                snapshot.forEach((childSnapshot) => {
+                    const studentData = childSnapshot.val();
+                    allStudents.push({
+                        uid: childSnapshot.key,
+                        studentno: studentData.studentno,
+                        fullname: studentData.fullname,
+                        gender: studentData.gender,
+                        section: studentData.section,
+                        email: studentData.email
+                    });
+                });
+                updateTableWithEntries(); // Populate table after loading all students
+            });
+        }
+
+        function viewFavorites(studUid) {
+            const favoritesRef = ref(db, `accounts/${studUid}/Favorites`);
+            get(favoritesRef).then((snapshot) => {
+                const favoritesList = document.getElementById('favoritesList');
+                favoritesList.innerHTML = ""; // Clear existing favorites
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((favoriteSnapshot) => {
+                        const bookId = favoriteSnapshot.key; // The bookId
+                        const favoriteData = favoriteSnapshot.val();
+                        const bookRef = ref(db, `Books/${bookId}`);
+
+                        get(bookRef).then((bookSnapshot) => {
+                            if (bookSnapshot.exists()) {
+                                const bookData = bookSnapshot.val();
+                                const authorsArray = [];
+
+                                for (let key in bookData.authors) {
+                                    const author = bookData.authors[key];
+                                    authorsArray.push(`${author.firstName} ${author.lastName}`);
+                                }
+
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                            <td data-label="Book ID">${bookId}</td>
+                            <td data-label="Title">${bookData.title || 'N/A'}</td>
+                            <td data-label="Adviser">${bookData.adviser || 'N/A'}</td>
+                            <td data-label="Authors">${authorsArray.join(', ') || 'N/A'}</td>
+                        `;
+                                favoritesList.appendChild(row);
+                            }
+                        });
+                    });
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="4">No favorites found.</td>`;
+                    favoritesList.appendChild(row);
+                }
+            });
+
+            const modal = document.getElementById('viewFavoritesModal');
+            modal.style.display = "block"; // Show the modal
+        }
+
+
+        const closeModal = document.getElementById('closeModal');
+        closeModal.onclick = function () {
+            const modal = document.getElementById('viewFavoritesModal');
+            modal.style.display = "none"; // Close the modal
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('viewFavoritesModal');
+            if (event.target === modal) {
+                modal.style.display = "none"; // Close the modal if the background is clicked
+            }
+        }
+        function AddAllItemsToTable(filteredStudents) {
+            tbody.innerHTML = "";
+            let limit = filteredStudents.length;
+            if (entriesPerPage.value !== 'all') {
+                limit = Math.min(parseInt(entriesPerPage.value), limit);
+            }
+
+            filteredStudents.slice(0, limit).forEach(student => {
+                AddItemToTable(
+                    student.studentno,
+                    student.fullname,
+                    student.gender,
+                    student.section,
+                    student.email,
+                    student.userId // Ensure `userId` or relevant UID is passed here
+                );
+            });
+        }
+
+        window.onload = () => {
+            initializeTable();
+            loadStudents();
+        };
+    </script>
+
+</body>
+
+</html>

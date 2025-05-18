@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/teacherLogoutModal.css">
+    <link rel="stylesheet" href="/css/teacherStudents.css">
+    <link rel="stylesheet" href="/css/adviserDashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo" onclick="refreshPage()">Re-Search</div>
+            <div class="container" id="menu">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/homepage.png" class="nav-img" alt="homepage">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/student accounts.png" class="nav-img" alt="student management">
+                        <h3>Student Management</h3>
+                    </div>
+                    <div class="nav-option optionSection">
+                        <img src="/images/section head.png" class="nav-img" alt="section">
+                        <h3>Sections</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="category">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/requests.png" class="nav-img" alt="request">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <section class="main" id="student-main">
+        </section>
+    </div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='adviserProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adviserProfile.js"></script>
+    <script rel="javascript" src="/js/teacherStudents.js"></script>
+    <script type="module" rel="javascript" src="/js/adviserLogout.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth();
+
+        let students = [];
+        let studentsPerPage = 5; // Default value
+        let currentPage = 1;
+
+        function fetchStudents() {
+            const studentsRef = ref(db, 'accounts');
+            onValue(studentsRef, (snapshot) => {
+                students = [];
+                snapshot.forEach(childSnapshot => {
+                    const studentData = childSnapshot.val();
+                    const studentId = childSnapshot.key; // Unique ID
+                    students.push({
+                        uid: studentId, // Include UID
+                        studentno: studentData.studentno || studentId,
+                        fullname: studentData.fullname,
+                        email: studentData.email,
+                        userType: studentData.userType, // Include userType
+                        gender: studentData.gender // Include gender
+                    });
+                });
+                createStudentTable(); // Update table after fetching data
+            });
+        }
+
+        let currentSortHeader = ''; // Track which header is currently sorted
+        let currentSortOrder = 'asc'; // Track the current sort order
+
+        function createStudentTable() {
+            const studentMain = document.getElementById('student-main');
+            studentMain.innerHTML = '';
+
+            const tableContainer = document.createElement('div');
+            tableContainer.classList.add('table-container');
+
+            const table = document.createElement('table');
+            const headerRow = document.createElement('tr');
+            const headers = ['Student Number', 'Name', 'Email', 'Actions'];
+
+            headers.forEach((headerText, index) => {
+                const header = document.createElement('th');
+                header.textContent = headerText;
+
+                // Create sort arrows for sortable columns
+                if (headerText !== 'Email' && headerText !== 'Actions') {
+                    const arrow = document.createElement('span');
+                    if (currentSortHeader === headerText) {
+                        arrow.textContent = currentSortOrder === 'asc' ? ' ▲' : ' ▼'; // Change arrow based on sort order
+                    } else {
+                        arrow.textContent = ' ▼'; // Default arrow for unsorted columns
+                    }
+                    arrow.classList.add('sort-arrow');
+                    arrow.onclick = () => {
+                        const newOrder = currentSortHeader === headerText && currentSortOrder === 'asc' ? 'desc' : 'asc';
+                        sortTable(headerText, newOrder);
+                    };
+                    header.appendChild(arrow);
+                }
+
+                headerRow.appendChild(header);
+            });
+
+            table.appendChild(headerRow);
+
+            const start = (currentPage - 1) * studentsPerPage;
+            const end = start + studentsPerPage;
+            const paginatedStudents = students.slice(start, end);
+
+            paginatedStudents.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+            <td>${student.studentno}</td>
+            <td>${student.fullname}</td>
+            <td>${student.email}</td>
+            <td><img src="/images/eye.png" alt="View" class="eye-icon" onclick="viewStudent('${student.studentno}')"></td>
+        `;
+                table.appendChild(row);
+            });
+
+            tableContainer.appendChild(table);
+            studentMain.appendChild(tableContainer);
+            createPagination(studentMain);
+        }
+
+        function createPagination(container) {
+            const pagination = document.createElement('div');
+            pagination.classList.add('pagination');
+
+            const totalPages = Math.ceil(students.length / studentsPerPage);
+            const pageInfo = document.createElement('span');
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}, showing ${students.length} students.`;
+            pagination.appendChild(pageInfo);
+
+            const prevButton = document.createElement('button');
+            prevButton.innerText = '◀ Previous';
+            prevButton.disabled = currentPage === 1;
+            prevButton.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    createStudentTable();
+                }
+            };
+
+            const nextButton = document.createElement('button');
+            nextButton.innerText = 'Next ▶';
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    createStudentTable();
+                }
+            };
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('button-container');
+            buttonContainer.appendChild(prevButton);
+            buttonContainer.appendChild(nextButton);
+            pagination.appendChild(buttonContainer);
+
+            const studentsPerPageSelect = document.createElement('select');
+            studentsPerPageSelect.classList.add('students-per-page');
+            [5, 10, 15, 20].forEach(num => {
+                const option = document.createElement('option');
+                option.value = num;
+                option.textContent = `${num} students per page`;
+                if (num === studentsPerPage) {
+                    option.selected = true;
+                }
+                studentsPerPageSelect.appendChild(option);
+            });
+
+            studentsPerPageSelect.onchange = (event) => {
+                studentsPerPage = Number(event.target.value);
+                currentPage = 1; // Reset to the first page when changing items per page
+                createStudentTable();
+            };
+
+            const studentsPerPageContainer = document.createElement('div');
+            studentsPerPageContainer.classList.add('students-per-page-container');
+            studentsPerPageContainer.appendChild(studentsPerPageSelect);
+            container.prepend(studentsPerPageContainer);
+
+            container.appendChild(pagination);
+
+            document.onkeydown = (e) => {
+                if (e.key === "ArrowLeft") {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        createStudentTable();
+                    }
+                } else if (e.key === "ArrowRight") {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        createStudentTable();
+                    }
+                }
+            };
+        }
+
+        function sortTable(header, order) {
+            const key = header === 'Student Number' ? 'studentno' : header === 'Name' ? 'fullname' : 'email';
+            students.sort((a, b) => {
+                if (order === 'asc') {
+                    return a[key] > b[key] ? 1 : -1;
+                } else {
+                    return a[key] < b[key] ? 1 : -1;
+                }
+            });
+            currentSortHeader = header; // Set the current sorted header
+            currentSortOrder = order; // Set the current sort order
+            createStudentTable(); // Recreate the table
+        }
+
+        fetchStudents(); // Fetch the students on page load
+
+        let overlay; // Declare the overlay variable globally
+
+        window.viewStudent = function (studentno) {
+            const student = students.find(s => s.studentno === studentno);
+            if (!student) return;
+
+            const genderMap = {
+                'F': 'Female',
+                'M': 'Male'
+            };
+            const gender = genderMap[student.gender] || 'Not specified'; // Default if gender is undefined
+
+            const userType = student.userType === 'Leader' ? 'Leader' : 'Member';
+
+            overlay = document.createElement('div'); // Use the global overlay variable
+            overlay.classList.add('modal-overlay');
+
+            const modal = document.createElement('div');
+            modal.classList.add('student-view-modal');
+
+            modal.innerHTML = `
+        <div class="modal-content">
+            <h2>Student Details</h2>
+            <p><strong>Student Number:</strong> ${student.studentno}</p>    
+            <p><strong>Name:</strong> ${student.fullname}</p>
+            <p><strong>Gender:</strong> ${gender}</p>
+            <p><strong>Email:</strong> ${student.email}</p>
+            <p><strong>Role:</strong> ${userType}</p>
+
+            <div class="modal-buttons">
+            <button id="setLeaderButton" ${userType === 'Leader' ? 'disabled' : ''}>Set as Leader</button>
+            <button id="setStudentButton" ${userType === 'Member' ? 'disabled' : ''}>Set as Member</button>
+            <button id="cancelButton">Cancel</button>
+            </div>
+        </div>
+    `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(modal);
+
+            document.getElementById('setLeaderButton').onclick = () => setAsLeader(studentno);
+            document.getElementById('setStudentButton').onclick = () => setAsMember(studentno);
+            document.getElementById('cancelButton').onclick = () => closeModal(modal);
+
+            modal.style.display = 'block';
+        };
+
+        function closeModal(modal) {
+            modal.remove();
+            if (overlay) {
+                overlay.remove(); // Remove overlay if it exists
+            }
+        }
+
+        window.setAsMember = function (studentno) {
+            const student = students.find(s => s.studentno === studentno);
+            if (student) {
+                student.userType = 'user';
+
+                const uid = auth.currentUser.uid; // Get the UID of the currently authenticated user
+                const studentRef = ref(db, `accounts/${student.uid}`); // Directly reference the student's UID
+
+                update(studentRef, { userType: 'user' })
+                    .then(() => {
+                        alert(`${student.fullname} is now set as Member.`);
+                        document.querySelector('.student-view-modal').remove();
+                        createStudentTable(); // Refresh the student table
+                        overlay.remove();
+                    })
+                    .catch((error) => {
+                        console.error("Error updating user type:", error);
+                    });
+            }
+        };
+
+        window.setAsLeader = function (studentno) {
+            const student = students.find(s => s.studentno === studentno);
+            if (student) {
+                student.userType = 'Leader';
+
+                const uid = auth.currentUser.uid; // Get the UID of the currently authenticated user
+                const studentRef = ref(db, `accounts/${student.uid}`); // Directly reference the student's UID
+
+                update(studentRef, { userType: 'Leader' })
+                    .then(() => {
+                        alert(`${student.fullname} is now set as Leader.`);
+                        document.querySelector('.student-view-modal').remove();
+                        createStudentTable(); // Refresh the student table
+                        overlay.remove();
+                    })
+                    .catch((error) => {
+                        console.error("Error updating user type:", error);
+                    });
+            }
+        };
+
+    </script>
+
+</body>
+
+</html>

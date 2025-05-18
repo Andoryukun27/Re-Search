@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/adminAccountsAdviser.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="categories">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="main-header">
+                <select id="statusFilter" class="search-select">
+                    <option value="all">Show All</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+                <div class="search-container">
+                    <img src="/images/search.png" class="search-icon" alt="search icon">
+                    <input type="text" class="search-input" id="search-bar" placeholder="Search a teacher">
+                    <span class="clear-icon" id="clear-icon">&times;</span>
+                    <button class="search-button" id="search-button">Search</button>
+                </div>
+                <button class="adviser-button" id="adviserButton">Create Account</button>
+            </div>
+            <table class="teacher-table" id="teacher-table">
+            </table>
+        </div>
+    </div>
+    <div id="adviserModal" class="adviser-modal">
+        <div class="adviser-content">
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script type="module" src="/js/adminProfile.js"></script>
+    <script type="module" src="/js/adminLogout.js"></script>
+    <script src="/js/adminAccountAdviser.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, get, set, ref, child, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+
+        const searchTerm = document.getElementById('search-bar').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        function searchAdvisers(searchTerm, statusFilter) {
+            const advisersRef = ref(db, 'Research Teacher/');
+
+            get(advisersRef).then((snapshot) => {
+                const tbody = document.getElementById('tbody1');
+                tbody.innerHTML = '';
+
+                snapshot.forEach((childSnapshot) => {
+                    const adviser = childSnapshot.val();
+                    const formattedTimestamp = new Date(adviser.timestamp).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+
+                    const employeeIDMatch = adviser.employeeID.toLowerCase().includes(searchTerm.toLowerCase());
+                    const nameMatch = adviser.name.toLowerCase().includes(searchTerm.toLowerCase());
+                    const emailMatch = adviser.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+                    let coursesMatch = false;
+                    if (adviser.coursesSections) {
+                        for (let course in adviser.coursesSections) {
+                            for (let section in adviser.coursesSections[course]) {
+                                if (course.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    section.toLowerCase().includes(searchTerm.toLowerCase())) {
+                                    coursesMatch = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    const statusMatch = statusFilter === 'all' || adviser.status === statusFilter;
+
+                    if ((employeeIDMatch || nameMatch || emailMatch || coursesMatch) && statusMatch) {
+                        AddAdviserToTable(adviser.employeeID, adviser.name, adviser.email, formattedTimestamp, childSnapshot.key, adviser.coursesSections, adviser.status);
+                    }
+                });
+            }).catch((error) => {
+                console.error('Error retrieving data:', error);
+            });
+        }
+
+        document.getElementById('search-button').addEventListener('click', () => {
+            const searchTerm = document.getElementById('search-bar').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            searchAdvisers(searchTerm, statusFilter);
+        });
+
+        document.getElementById('search-bar').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const searchTerm = document.getElementById('search-bar').value;
+                const statusFilter = document.getElementById('statusFilter').value;
+                searchAdvisers(searchTerm, statusFilter);
+            }
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            const searchTerm = document.getElementById('search-bar').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            searchAdvisers(searchTerm, statusFilter);
+        });
+
+        document.getElementById('clear-icon').addEventListener('click', () => {
+            document.getElementById('search-bar').value = '';
+            const statusFilter = document.getElementById('statusFilter').value;
+            searchAdvisers('', statusFilter);
+        });
+
+        loadAdvisers();
+
+        const adviserButton = document.getElementById('adviserButton');
+        const adviserModal = document.getElementById('adviserModal');
+        adviserButton.addEventListener('click', openAdviserModal);
+
+        function openAdviserModal() {
+            const modalContent = document.querySelector('.adviser-content');
+
+            modalContent.innerHTML = `
+        <h2>Upload Teacher List</h2>
+        <div class="form-group">
+            <label for="adviserUpload">Upload CSV or Excel</label>
+            <input type="file" id="adviserUpload" accept=".csv, .xlsx" required />
+            <p class="warning">Only CSV or Excel (.csv, .xlsx) files are allowed.</p>
+        </div>
+        <div class="button-group">
+            <button class="button-save" id="saveAdviserButton">Save</button>
+            <button class="button-cancel" id="cancelAdviserButton">Cancel</button>
+        </div>
+    `;
+
+            document.getElementById('saveAdviserButton').addEventListener('click', saveAdviser);
+            document.getElementById('cancelAdviserButton').addEventListener('click', () => {
+                closeAdviserModal();
+                clearAdviserInputs();
+            });
+
+            adviserModal.style.display = 'flex';
+        }
+
+        function closeAdviserModal() {
+            adviserModal.style.display = 'none';
+        }
+
+        function clearAdviserInputs() {
+            const adviserUploadInput = document.getElementById('adviserUpload');
+            if (adviserUploadInput) {
+                adviserUploadInput.value = '';
+            }
+        }
+
+        function saveAdviser() {
+            const fileInput = document.getElementById('adviserUpload');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const allowedExtensions = ['csv', 'xlsx'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                if (!allowedExtensions.includes(fileExtension)) {
+                    Swal.fire({
+                        title: 'Invalid File!',
+                        text: 'Please upload a valid CSV or Excel file.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `You are about to upload: ${file.name}`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, upload it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'Uploading...',
+                            html: 'Please wait while we process your file.',
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const data = new Uint8Array(e.target.result);
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                            const headers = jsonData[0];
+                            const rows = jsonData.slice(1);
+
+                            const uploadPromises = rows.map(row => {
+                                const employeeID = row[0];
+                                const name = row[1];
+                                const email = row[2];
+
+                                if (name && email) {
+                                    const timestamp = new Date().toISOString();
+                                    return fetchSignInMethodsForEmail(auth, email)
+                                        .then((signInMethods) => {
+                                            if (signInMethods.length > 0) {
+                                                Swal.fire({
+                                                    title: 'User Already Exists!',
+                                                    text: `User with email ${email} already exists. Skipping...`,
+                                                    icon: 'info',
+                                                    confirmButtonText: 'OK'
+                                                });
+                                                return;
+                                            }
+
+                                            return createUserWithEmailAndPassword(auth, email, Math.random().toString(36).slice(-8))
+                                                .then((userCredential) => {
+                                                    const user = userCredential.user;
+                                                    const adviserRef = ref(db, 'Research Teacher/' + user.uid);
+
+                                                    return set(adviserRef, {
+                                                        status: "Active",
+                                                        employeeID: employeeID,
+                                                        name: name,
+                                                        email: email,
+                                                        profileImage: '',
+                                                        timestamp: timestamp,
+                                                        role: 'researchTeacher'
+                                                    }).then(() => {
+                                                        Swal.fire({
+                                                            title: 'Success!',
+                                                            text: `Data for ${name} saved successfully.`,
+                                                            icon: 'success',
+                                                            confirmButtonText: 'OK'
+                                                        });
+                                                        return sendPasswordResetEmail(auth, email).then(() => {
+                                                            Swal.fire({
+                                                                title: 'Password Reset Email Sent!',
+                                                                text: `Password reset email sent to ${email}`,
+                                                                icon: 'info',
+                                                                confirmButtonText: 'OK'
+                                                            });
+                                                        });
+                                                    });
+                                                })
+                                                .catch((error) => {
+                                                    Swal.fire({
+                                                        title: 'Error Creating User!',
+                                                        text: `Error: ${error.message}`,
+                                                        icon: 'error',
+                                                        confirmButtonText: 'OK'
+                                                    });
+                                                });
+                                        })
+                                        .catch((error) => {
+                                            Swal.fire({
+                                                title: 'Error Checking User!',
+                                                text: `Error: ${error.message}`,
+                                                icon: 'error',
+                                                confirmButtonText: 'OK'
+                                            });
+                                        });
+                                }
+                            });
+
+                            Promise.all(uploadPromises).then(() => {
+                                Swal.fire({
+                                    title: 'Uploaded!',
+                                    text: `File uploaded and data processed successfully!`,
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                });
+
+                                closeAdviserModal();
+                            }).catch(error => {
+                                Swal.fire({
+                                    title: 'Error During Upload!',
+                                    text: `Error: ${error.message}`,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                        };
+
+                        reader.readAsArrayBuffer(file);
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            title: 'Cancelled',
+                            text: 'File upload cancelled.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please select a file to upload.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+
+        function createTable() {
+            const teacherTable = document.getElementById("teacher-table");
+            teacherTable.innerHTML = '';
+
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const headers = ["Employee ID", "Name", "Email", "Date Joined", "Courses & Sections", "Status", "Action"];
+
+            headers.forEach(headerText => {
+                const th = document.createElement("th");
+                th.className = "teacher-th-centered";
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            const tbody = document.createElement("tbody");
+            tbody.id = "tbody1";
+
+            teacherTable.appendChild(thead);
+            teacherTable.appendChild(tbody);
+        }
+
+        function AddAdviserToTable(employeeID, name, email, formattedTimestamp, uid, coursesSections, status) {
+            const trow = document.createElement("tr");
+            trow.setAttribute('data-uid', uid);
+
+            const coursesDisplay = coursesSections ? Object.entries(coursesSections)
+                .flatMap(([course, sections]) => {
+                    return Object.keys(sections).map(section => `${course} ${section}`);
+                })
+                .join(', ') : "No courses or sections have been set.";
+
+            trow.innerHTML = `
+        <td>${employeeID}</td>
+        <td>${name}</td>
+        <td>${email}</td>
+        <td>${formattedTimestamp}</td>
+        <td>${coursesDisplay}</td>
+        <td>${status}</td>
+        <td class="action-cell">
+            <img src="./images/edit.png" alt="Edit" class="edit-icon" data-uid="${uid}" style="cursor: pointer; width: 20px; height: 20px;">
+        </td>
+    `;
+
+            document.getElementById('tbody1').appendChild(trow);
+        }
+
+
+        function loadAdvisers() {
+            const advisersRef = ref(db, 'Research Teacher/');
+            onValue(advisersRef, (snapshot) => {
+                const tbody = document.getElementById('tbody1');
+                tbody.innerHTML = '';
+
+                snapshot.forEach((childSnapshot) => {
+                    const adviser = childSnapshot.val();
+                    const formattedTimestamp = new Date(adviser.timestamp).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+
+                    AddAdviserToTable(adviser.employeeID, adviser.name, adviser.email, formattedTimestamp, childSnapshot.key, adviser.coursesSections, adviser.status);
+                });
+            });
+        }
+
+        document.addEventListener('click', (event) => {
+            if (event.target && event.target.classList.contains('edit-icon')) {
+                const uid = event.target.getAttribute('data-uid');
+                openEditModalWithSweetAlert(uid);
+            }
+        });
+
+        function openEditModalWithSweetAlert(uid) {
+            const adviserRef = ref(db, `Research Teacher/${uid}`);
+
+            get(adviserRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const adviser = snapshot.val();
+                    const { name, email } = adviser;
+
+                    Swal.fire({
+                        title: `Set Inactive Date`,
+                        html: `
+                        <p>Name: ${name}</p>
+                    <p>Email: ${email}</p>
+                    <label for="inactiveDate">Choose a date:</label>
+                    <input type="date" id="inactiveDate" class="swal2-input" required>
+                `,
+                        confirmButtonText: 'Save',
+                        showCancelButton: true,
+                        preConfirm: () => {
+                            const inactiveDate = Swal.getPopup().querySelector('#inactiveDate').value;
+                            if (!inactiveDate) {
+                                Swal.showValidationMessage('Please select a valid date.');
+                            }
+                            return { inactiveDate };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            saveInactiveDate(uid, result.value.inactiveDate);
+                        }
+                    });
+                } else {
+                    Swal.fire('Error', 'Teacher not found!', 'error');
+                }
+            }).catch((error) => {
+                Swal.fire('Error', `Error retrieving teacher data: ${error.message}`, 'error');
+            });
+        }
+
+        function saveInactiveDate(uid, inactiveDate) {
+            const adviserRef = ref(db, `Research Teacher/${uid}`);
+            update(adviserRef, { inactiveDate })
+                .then(() => {
+                    Swal.fire('Success', 'Inactive date set successfully!', 'success');
+                })
+                .catch((error) => {
+                    Swal.fire('Error', `Could not save inactive date: ${error.message}`, 'error');
+                });
+        }
+
+        function monitorInactiveDates() {
+            const advisersRef = ref(db, 'Research Teacher/');
+            onValue(advisersRef, (snapshot) => {
+                const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+                snapshot.forEach((childSnapshot) => {
+                    const adviser = childSnapshot.val();
+                    const uid = childSnapshot.key;
+
+                    if (adviser.inactiveDate && adviser.inactiveDate === currentDate && adviser.status !== "Inactive") {
+                        const adviserRef = ref(db, `Research Teacher/${uid}`);
+                        update(adviserRef, { status: "Inactive" })
+                            .then(() => {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Status Updated',
+                                    text: `Teacher ${adviser.name} has been set to Inactive.`,
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+                            })
+                            .catch((error) => {
+                                console.error(`Error updating status: ${error.message}`);
+                            });
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', monitorInactiveDates);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createTable();
+            loadAdvisers();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/teacherLogoutModal.css">
+    <link rel="stylesheet" href="/css/adviserDashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="message">
+                <div class="circle"></div>
+                <img src="/images/bell.png" class="icn" alt="notification">
+            </div>
+            <div class="dp">
+                <img class="dpicn" alt="dp">
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionActive">
+                        <img src="/images/homepage.png" class="nav-img" alt="homepage">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionStudManage">
+                        <img src="/images/student accounts.png" class="nav-img" alt="student management">
+                        <h3>Student Management</h3>
+                    </div>
+                    <div class="nav-option optionSection">
+                        <img src="/images/section head.png" class="nav-img" alt="section">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="category">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/requests.png" class="nav-img" alt="request">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="box-container" id="course-section-container">
+            </div>
+            <div class="report-container">
+                <div class="activities-and-status">
+                    <div class="uploading-status" onclick="location.href='teacherRequests.html'">
+                        <h3>Research Uploading Status</h3>
+                        <table class="capstone-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Uploaded By</th>
+                                    <th>Course/Section</th>
+                                    <th>Date Uploaded</th>
+                                    <th>Research Adviser</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="researchStatusTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="notificationContainer" class="notification-container"></div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='adviserProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adviserProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adviserLogout.js"></script>
+    <script type="module" src="/js/notification.js"></script>
+    <script src="/js/adviserDashboard.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const teacherUID = sessionStorage.getItem("userUID");
+
+        function createCourseSectionBox(sectionName, studentCount) {
+            if (!sectionName) return;
+
+            const container = document.getElementById("course-section-container");
+            const box = document.createElement("div");
+            box.classList.add("box");
+
+            box.innerHTML = `
+                <img src="/images/students.png" alt="Students Icon">
+                <div class="text">
+                    <p><b>${sectionName}</b></p>
+                    <p>${studentCount} Students</p>
+                </div>
+            `;
+            container.appendChild(box);
+        }
+
+        const teacherCoursesRef = ref(db, `Courses/${teacherUID}`);
+        onValue(teacherCoursesRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const courses = snapshot.val();
+
+                for (const courseId in courses) {
+                    const courseData = courses[courseId];
+                    const courseName = courseData.courseName;
+
+                    if (courseData.noMajor) {
+                        for (const sectionKey in courseData) {
+                            if (sectionKey !== "courseName" && sectionKey !== "noMajor") {
+                                const sectionData = courseData[sectionKey];
+                                const sectionName = sectionData.sectionName;
+
+                                getStudentCount(sectionName, (studentCount) => {
+                                    createCourseSectionBox(sectionName, studentCount);
+                                });
+                            }
+                        }
+                    } else {
+                        for (const majorKey in courseData) {
+                            if (majorKey !== "courseName") {
+                                const majorSections = courseData[majorKey];
+                                for (const sectionKey in majorSections) {
+                                    const sectionData = majorSections[sectionKey];
+                                    const sectionName = sectionData.sectionName;
+
+                                    getStudentCount(sectionName, (studentCount) => {
+                                        createCourseSectionBox(sectionName, studentCount);
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                console.log("No data found for this research teacher.");
+            }
+        });
+
+        function getStudentCount(sectionName, callback) {
+            const accountsRef = ref(db, "accounts");
+            onValue(accountsRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const accounts = snapshot.val();
+                    let count = 0;
+
+                    for (const accountId in accounts) {
+                        const account = accounts[accountId];
+                        if (account.section === sectionName) {
+                            count++;
+                        }
+                    }
+                    callback(count);
+                } else {
+                    callback(0);
+                }
+            });
+        }
+
+        function loadResearchStatus() {
+            const tableBody = document.getElementById("researchStatusTable");
+            tableBody.innerHTML = "";
+
+            const booksRef = ref(db, "Books");
+
+            onValue(booksRef, (snapshot) => {
+                tableBody.innerHTML = ""; // Clear table for fresh data
+                if (snapshot.exists()) {
+                    const books = [];
+
+                    snapshot.forEach((childSnapshot) => {
+                        const book = childSnapshot.val();
+                        if (book.adviserUID === teacherUID) {
+                            books.push(book);
+                        }
+                    });
+
+                    const statusGroups = {
+                        Pending: [],
+                        Approved: [],
+                        Returned: []
+                    };
+
+                    books.forEach((book) => {
+                        const status = book.state;
+                        if (statusGroups[status]) {
+                            statusGroups[status].push(book);
+                        }
+                    });
+
+                    Object.keys(statusGroups).forEach((status) => {
+                        statusGroups[status]
+                            .sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)) // Sort by uploadDate descending
+                            .slice(0, 5) // Limit to 5 most recent
+                            .forEach((book) => {
+                                const date = new Date(book.uploadDate).toLocaleString() || "Unknown Date";
+                                const adviser = book.adviser || "Unknown Adviser";
+                                const studentUID = book.uid;
+
+                                getStudentInfo(studentUID, (studentInfo) => {
+                                    let statusColor;
+                                    if (status === "Pending") {
+                                        statusColor = "orange";
+                                    } else if (status === "Approved") {
+                                        statusColor = "green";
+                                    } else if (status === "Returned") {
+                                        statusColor = "red";
+                                    }
+
+                                    const row = `
+                                <tr>
+                                    <td>${book.title || "No Title"}</td>
+                                    <td>${studentInfo.fullname}</td>
+                                    <td>${studentInfo.section}</td>
+                                    <td>${date}</td>
+                                    <td>${adviser}</td>
+                                    <td style="color: ${statusColor}; font-weight: bold;">${status}</td>
+                                </tr>
+                            `;
+                                    tableBody.innerHTML += row;
+                                });
+                            });
+                    });
+                } else {
+                    const noDataRow = `
+                <tr>
+                    <td colspan="6" style="text-align: center;">No data available</td>
+                </tr>
+            `;
+                    tableBody.innerHTML = noDataRow;
+                }
+            });
+        }
+
+        function getStudentInfo(studentUID, callback) {
+            const accountsRef = ref(db, `accounts/${studentUID}`);
+            onValue(accountsRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const student = snapshot.val();
+                    const studentInfo = {
+                        fullname: student.fullname || "Unknown Student",
+                        section: student.section || "Unknown Section"
+                    };
+                    callback(studentInfo);
+                } else {
+                    callback({ fullname: "Unknown Student", section: "Unknown Section" });
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", loadResearchStatus);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/adminCapstones.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="categories">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="main-header">
+                <div class="search-container">
+                    <img src="/images/search.png" class="search-icon" alt="search icon">
+                    <input type="text" class="search-input" id="search-bar" placeholder="Search...">
+                    <span class="clear-icon" id="clear-icon">&times;</span>
+                    <button class="search-button" id="searchButton">Search</button>
+                </div>
+                <button id="addResearchButton">Add Research Details</button>
+            </div>
+            <div class="table-responsive">
+                <table class="research-title-table" id="research-title-table">
+                    <tbody class="tbody-capstone" id="tbody-capstone"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="/js/adminCapstone.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, child, onValue, get, set, push, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, getMetadata } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+        const storage = getStorage();
+
+        const addResearchButton = document.getElementById('addResearchButton');
+
+        const createModal = () => {
+            const modal = document.createElement('div');
+            modal.id = 'addResearchModal';
+            modal.classList.add('add-research-modal');
+
+            modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-button" id="closeModal">&times;</span>
+            <h2 class="modal-header">Add Research Details</h2>
+            <div class="left-side">
+                <label for="imradUpload">Upload IMRAD PDF:</label>
+                <input type="file" id="imradUpload" accept="application/pdf" required>
+                
+                <label for="abstractUpload">Upload Abstract PDF:</label>
+                <input type="file" id="abstractUpload" accept="application/pdf" required>
+                
+                <label for="title">Title:</label>
+                <input type="text" id="title" required>
+                
+                <label for="researchAbstract">Research Abstract:</label>
+                <textarea id="researchAbstract" required></textarea>
+                
+                <label for="course">Select Course:</label>
+                <select id="course" required>
+                    <option value="" disabled selected>Select a course</option>
+                </select>
+                
+                <label for="major">Select Major (If Applicable):</label>
+                <select id="major" disabled>
+                    <option value="" disabled selected>Select a major</option>
+                </select>
+            </div>
+            <div class="right-side">
+                <label for="section">Section:</label>
+                <select id="section" required>
+                    <option value="" disabled selected>Select a section</option>
+                    <option value="4A">4A</option>
+                    <option value="4B">4B</option>
+                    <option value="4C">4C</option>
+                    <option value="4D">4D</option>
+                    <option value="4E">4E</option>
+                    <option value="4F">4F</option>
+                </select>
+
+                <label for="teacher">Research Teacher:</label>
+                <input type="text" id="teacher" required>
+                
+                <label for="adviser">Research Adviser:</label>
+                <input type="text" id="adviser" required>
+                
+                <div id="authorFields">
+                    <label>Authors:</label>
+                    <div class="author-input-container">
+                        <input type="text" name="firstName" class="author-firstname" placeholder="First Name" required>
+                        <input type="text" name="lastName" class="author-lastname" placeholder="Last Name" required>
+                    </div>
+                </div>
+                
+                <button type="button" id="addAuthorButton">Add Another Author</button>
+                
+                <label for="year">Year:</label>
+                <input type="number" id="year" min="1000" max="9999" required>
+            </div>
+            <button type="button" id="saveResearchButton">Save Research Details</button>
+        </div>
+    `;
+
+            document.body.appendChild(modal);
+
+            const closeModal = document.getElementById('closeModal');
+            const researchForm = document.getElementById('researchForm');
+            const addAuthorButton = document.getElementById('addAuthorButton');
+            const authorFields = document.getElementById('authorFields');
+            const courseDropdown = document.getElementById('course');
+            const majorDropdown = document.getElementById('major');
+
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+                modal.remove(); // Remove the modal from the DOM
+                authorFields.innerHTML = '<label>Authors:</label><div class="author-input-container"><input type="text" name="firstName" class="author-firstname" placeholder="First Name" required><input type="text" name="lastName" class="author-lastname" placeholder="Last Name" required></div>'; // Reset authors
+                authorCount = 1; // Reset back to 1 for the next use
+                addAuthorButton.disabled = false; // Re-enable the button
+            });
+
+            let authorCount = 1; // Starts with 1 for the initially created input pair
+
+            addAuthorButton.addEventListener('click', () => {
+                if (authorCount < 6) {
+                    const newAuthorDiv = document.createElement('div');
+                    newAuthorDiv.className = 'author-input-container';
+
+                    const firstNameInput = document.createElement('input');
+                    firstNameInput.type = 'text';
+                    firstNameInput.name = 'firstName';
+                    firstNameInput.className = 'author-firstname'; // Use the same class for consistency
+                    firstNameInput.placeholder = 'First Name';
+                    firstNameInput.required = true;
+
+                    const lastNameInput = document.createElement('input');
+                    lastNameInput.type = 'text';
+                    lastNameInput.name = 'lastName';
+                    lastNameInput.className = 'author-lastname'; // Use the same class for consistency
+                    lastNameInput.placeholder = 'Last Name';
+                    lastNameInput.required = true;
+
+                    const removeButton = document.createElement('span');
+                    removeButton.className = 'remove-author';
+                    removeButton.innerHTML = '&times;'; // Cross icon
+
+                    removeButton.addEventListener('click', () => {
+                        newAuthorDiv.remove();
+                        authorCount--;
+                        addAuthorButton.disabled = false; // Re-enable the add button if needed
+                    });
+
+                    newAuthorDiv.appendChild(firstNameInput);
+                    newAuthorDiv.appendChild(lastNameInput);
+                    newAuthorDiv.appendChild(removeButton); // Append the remove button
+                    authorFields.appendChild(newAuthorDiv);
+
+                    authorCount++;
+                }
+
+                if (authorCount >= 6) {
+                    addAuthorButton.disabled = true;
+                }
+            });
+
+            fetchCategories();
+
+            courseDropdown.addEventListener('change', (e) => {
+                const selectedCourseId = e.target.value;
+                const selectedCourseData = categories[selectedCourseId];
+
+                if (selectedCourseData && !selectedCourseData.noMajor) {
+                    majorDropdown.disabled = false;
+                    majorDropdown.innerHTML = '<option value="" disabled selected>Select a major</option>'; // Reset dropdown
+                    selectedCourseData.majors.forEach((major) => {
+                        const majorOption = document.createElement('option');
+                        majorOption.value = major; // Set the major as the option value
+                        majorOption.textContent = major; // Display the major name
+                        majorDropdown.appendChild(majorOption);
+                    });
+                } else {
+                    majorDropdown.innerHTML = '<option value="" disabled selected>No major required</option>';
+                    majorDropdown.disabled = true;
+                }
+            });
+        };
+
+        let categories = {};
+
+        const fetchCategories = async () => {
+            try {
+                const categoriesRef = ref(db, 'Categories');
+                const snapshot = await get(categoriesRef);
+
+                if (snapshot.exists()) {
+                    categories = snapshot.val();
+                    populateCourseDropdown(categories);
+                } else {
+                    console.log("No categories found.");
+                }
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
+        const populateCourseDropdown = (categories) => {
+            const courseDropdown = document.getElementById('course');
+            courseDropdown.innerHTML = '<option value="" disabled selected>Select a course</option>'; // Reset dropdown
+            Object.entries(categories).forEach(([key, courseData]) => {
+                const option = document.createElement('option');
+                option.value = key; // Option value should be the key (e.g., category ID)
+                option.textContent = `${courseData.courseName} (${courseData.courseAcronym})`; // Display course acronym and name
+                courseDropdown.appendChild(option);
+            });
+        };
+
+        addResearchButton.addEventListener('click', () => {
+            createModal(); // Create and show the modal
+            document.getElementById('addResearchModal').style.display = 'flex'; // Display the modal
+        });
+
+        document.addEventListener('click', async (e) => {
+            if (e.target && e.target.id === 'saveResearchButton') {
+                e.preventDefault(); // Prevent any default action
+
+                const imradFile = document.getElementById('imradUpload').files[0];
+                const abstractFile = document.getElementById('abstractUpload').files[0];
+                const title = document.getElementById('title').value;
+                const researchAbstract = document.getElementById('researchAbstract').value;
+                const courseDropdown = document.getElementById('course');
+                const majorDropdown = document.getElementById('major');
+                const teacher = document.getElementById('teacher').value;
+                const adviser = document.getElementById('adviser').value;
+                const year = document.getElementById('year').value;
+                const section = document.getElementById('section').value;
+
+                if (!imradFile || !abstractFile || !title || !researchAbstract || !courseDropdown.value ||
+                    (majorDropdown.disabled === false && !majorDropdown.value) ||
+                    !teacher || !adviser || !year || !section) {
+                    alert('Please fill out all fields before saving.');
+                    return; // Stop execution if validation fails
+                }
+
+                const authorContainers = document.querySelectorAll('.author-input-container');
+                const authors = Array.from(authorContainers).map(container => {
+                    const firstNameInput = container.querySelector('.author-firstname');
+                    const lastNameInput = container.querySelector('.author-lastname');
+
+                    const firstName = firstNameInput ? firstNameInput.value : '';
+                    const lastName = lastNameInput ? lastNameInput.value : '';
+
+                    return { firstName, lastName }; // Create an object for each author
+                }).filter(author => author.firstName && author.lastName); // Ensure no empty authors are saved
+
+                if (authors.length === 0) {
+                    alert('Please add at least one author.');
+                    return; // Stop execution if no authors are provided
+                }
+
+                console.log("Collected Authors:", authors);
+
+                const courseData = categories[courseDropdown.value];
+                const courseAcronym = courseData ? courseData.courseAcronym : '';
+                const currentDate = new Date();
+                const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // zero-padded month
+
+                let incrementedID = 1; // Start with the first ID
+                let formattedID;
+
+                const generateFormattedID = (id) => {
+                    return `${courseAcronym}-${section}-${month}-${year}-${String(id).padStart(3, '0')}`;
+                };
+
+                let uniqueIDFound = false;
+                while (!uniqueIDFound) {
+                    formattedID = generateFormattedID(incrementedID);
+                    const imradRef = storageRef(storage, `Books/${formattedID}`);
+                    const abstractRef = storageRef(storage, `Abstracts/${formattedID}`);
+
+                    try {
+                        await getMetadata(imradRef); // This will throw if the file does not exist
+                        await getMetadata(abstractRef); // Check for both files
+                        incrementedID++; // Increment the ID if the file exists
+                    } catch (error) {
+                        uniqueIDFound = true; // Found a unique filename
+                    }
+                }
+
+                const imradRef = storageRef(storage, `Books/${formattedID}`);
+                const abstractRef = storageRef(storage, `Abstracts/${formattedID}`);
+
+                try {
+                    await uploadBytes(imradRef, imradFile);
+                    const imradUrl = await getDownloadURL(imradRef);
+                    await uploadBytes(abstractRef, abstractFile);
+                    const abstractUrl = await getDownloadURL(abstractRef);
+
+                    const userBooksRefFinal = ref(db, `Books/${formattedID}`);
+                    await set(userBooksRefFinal, {
+                        abstracturl: abstractUrl,
+                        adviser: adviser,
+                        authors: authors,
+                        courseAcronym: courseAcronym,
+                        courseId: courseDropdown.value,
+                        courseName: categories[courseDropdown.value].courseName,
+                        description: researchAbstract,
+                        downloadCount: 0,
+                        favoriteCount: 0,
+                        id: formattedID,
+                        major: majorDropdown.value || null,
+                        researchTeacher: teacher,
+                        state: "Approved",
+                        title: title,
+                        uid: sessionStorage.getItem('userUID'),
+                        uploadDate: Date.now(),
+                        url: imradUrl,
+                        viewCount: 0,
+                        year: year,
+                    });
+
+                    alert('Research details saved successfully!');
+                    const modal = document.getElementById('addResearchModal');
+                    modal.style.display = 'none';
+                    modal.remove();
+                } catch (error) {
+                    console.error("Error saving research details:", error);
+                    alert('Failed to save research details. Please try again.');
+                }
+            }
+        });
+
+        const searchBar = document.getElementById('search-bar');
+        const clearIcon = document.getElementById('clear-icon');
+        const tbodyResearch = document.getElementById('tbody-capstone');
+        const searchButton = document.getElementById('searchButton');
+
+        const researchTable = document.getElementById('research-title-table');
+        researchTable.appendChild(createTableHeader());
+
+        searchBar.addEventListener('input', () => {
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        });
+
+        clearIcon.addEventListener('click', () => {
+            searchBar.value = '';
+            clearIcon.style.display = 'none';
+            searchBar.focus();
+            loadInitialData();
+        });
+
+        searchButton.addEventListener('click', updateTableWithEntries);
+        searchBar.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                updateTableWithEntries();
+            }
+        });
+
+        function updateTableWithEntries() {
+            const searchTerm = searchBar.value.trim().toLowerCase();
+
+            if (!searchTerm) {
+                loadInitialData();
+                return;
+            }
+
+            searchGlobal(searchTerm);
+        }
+
+        function searchGlobal(searchTerm) {
+            const dbRef = ref(db, "Books");
+            get(dbRef).then((snapshot) => {
+                const books = [];
+
+                snapshot.forEach(childSnapshot => {
+                    const book = childSnapshot.val();
+
+                    if (book.state === "Approved") {
+                        const matchesID = book.id.toLowerCase().includes(searchTerm);
+                        const matchesTitle = book.title.toLowerCase().includes(searchTerm);
+                        const matchesCourse = book.courseName.toLowerCase().includes(searchTerm);
+                        const matchesYear = book.year.includes(searchTerm);
+                        const matchesAuthors = book.authors.some(author => {
+                            const fullName = `${author.firstName} ${author.lastName}`.toLowerCase();
+                            return fullName.includes(searchTerm);
+                        });
+
+                        if (matchesID || matchesTitle || matchesCourse || matchesYear || matchesAuthors) {
+                            books.push(book);
+                        }
+                    }
+                });
+
+                AddAllItemsToTable(books);
+            }).catch((error) => {
+                console.error("Error fetching books:", error);
+            });
+        }
+
+        function createTableHeader() {
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const headers = ["Research ID", "Title", "Course", "Teacher", "Authors", "Year", "Actions"];
+
+            headers.forEach(headerText => {
+                const th = document.createElement("th");
+                th.className = "research-th-centered";
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+
+            thead.appendChild(headerRow);
+            return thead;
+        }
+
+        function initializeTable() {
+            tbodyResearch.innerHTML = "";
+        }
+
+        function AddItemToTable(catId, title, course, teacher, authors, year, url, abstractUrl) {
+            const trow = document.createElement("tr");
+            trow.innerHTML = `
+        <td>${catId}</td>
+        <td>${title}</td>
+        <td>${course}</td>
+        <td>${teacher}</td>
+        <td>${authors}</td>
+        <td>${year}</td>
+        <td style="text-align: center;">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <button class="action-button view-imrad" onclick="window.open('${url}', '_blank')">View IMRAD</button>
+                <button class="action-button view-abstract" onclick="window.open('${abstractUrl}', '_blank')">View Abstract</button>
+            </div>
+        </td>
+    `;
+            tbodyResearch.appendChild(trow);
+        }
+
+        function AddAllItemsToTable(books) {
+            initializeTable(); // Clear previous rows
+            books.forEach(book => {
+                const authors = book.authors.map(author => `${author.firstName} ${author.lastName}`).join(",<br>");
+                AddItemToTable(book.id, book.title, book.courseName, book.researchTeacher, authors, book.year, book.url, book.abstracturl);
+            });
+        }
+
+        window.addEventListener('load', loadInitialData);
+
+        function loadInitialData() {
+            const dbRef = ref(db, 'Books/');
+            get(dbRef)
+                .then((snapshot) => {
+                    const books = [];
+                    snapshot.forEach(childSnapshot => {
+                        const book = childSnapshot.val();
+                        if (book.state === "Approved") {
+                            books.push(book);
+                        }
+                    });
+                    AddAllItemsToTable(books);
+                })
+                .catch((error) => {
+                    console.error("Error fetching books:", error);
+                });
+        }
+    </script>
+</body>
+
+</html>

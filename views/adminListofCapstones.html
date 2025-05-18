@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/adminListofCapstones.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="Category Icon">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="main-header">
+                <div class="header-text">
+                    <div>
+                        <span class="count-display" id="total-capstone-count"></span>
+                        <span class="all-users">All Research Titles</span>
+                    </div>
+                </div>
+                <div class="search-container">
+                    <select id="course-dropdown">
+                        <option value="all">Show All</option>
+                    </select>
+                    <input type="text" class="search-bar" id="search-bar" placeholder="Search by ID or Title">
+                    <span class="clear-icon" id="clear-icon">&times;</span>
+                    <button class="search-button" id="search-button">Search</button>
+                </div>
+                <button class="print-button" id="exportButton">
+                    <img src="/images/print.png" class="print-icon" alt="Print Icon"> Export
+                </button>
+            </div>
+            <table class="all-research-table" id="research-report-table">
+            </table>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script rel="javascript" src="/js/adminListofCapstones.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, child, onValue, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+        const storage = getStorage();
+        const bookRef = ref(db, 'Books/');
+
+        let books = [];
+        let currentSortKey = null;
+        let currentSortOrder = 'desc';
+
+        const courseDropdown = document.getElementById('course-dropdown');
+        const capstoneTable = document.getElementById('research-report-table');
+        const tbodyCapstone = document.createElement('tbody');
+        capstoneTable.appendChild(tbodyCapstone);
+
+        function populateCourseDropdown(courses) {
+            courseDropdown.innerHTML = '<option value="all">Show All</option>';
+            courses.forEach(course => {
+                const option = document.createElement('option');
+                option.value = course.courseAcronym;
+                option.textContent = `${course.courseAcronym}`;
+                courseDropdown.appendChild(option);
+            });
+        }
+
+        onValue(bookRef, (snapshot) => {
+            const booksData = snapshot.val();
+            const totalBooks = Object.keys(booksData || {}).length;
+            const totalCapstoneCount = document.getElementById("total-capstone-count");
+            totalCapstoneCount.textContent = totalBooks;
+        });
+
+        document.getElementById('search-button').addEventListener('click', performSearch);
+        document.getElementById('search-bar').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch(); // Trigger search when Enter key is pressed
+            }
+        });
+
+        document.getElementById('search-button').addEventListener('click', performSearch);
+        document.getElementById('search-bar').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch(); // Trigger search when Enter key is pressed
+            }
+        });
+
+        document.getElementById('search-bar').addEventListener('input', function () {
+            const clearIcon = document.getElementById('clear-icon');
+            if (this.value.trim()) {
+                clearIcon.style.display = 'inline'; // Show clear icon
+            } else {
+                clearIcon.style.display = 'none'; // Hide clear icon
+            }
+        });
+
+        document.getElementById('clear-icon').addEventListener('click', function () {
+            const searchBar = document.getElementById('search-bar');
+            searchBar.value = ''; // Clear search bar
+            this.style.display = 'none'; // Hide clear icon
+            performSearch(); // Reset table to show all rows
+        });
+
+        function performSearch() {
+            const query = document.getElementById('search-bar').value.toLowerCase().trim();
+            const rows = tbodyCapstone.querySelectorAll('tr');
+
+            if (query === '') {
+                rows.forEach(row => row.style.display = '');
+                return;
+            }
+
+            rows.forEach(row => {
+                const catalogueID = row.children[0].textContent.toLowerCase();
+                const title = row.children[1].textContent.toLowerCase();
+
+                if (catalogueID.includes(query) || title.includes(query)) {
+                    row.style.display = ''; // Show matching rows
+                } else {
+                    row.style.display = 'none'; // Hide non-matching rows
+                }
+            });
+        }
+
+        function createTableHeader() {
+            const tableHead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            const headers = [
+                { text: "Research ID" },
+                { text: "Title" },
+                { text: "Date Uploaded" },
+                { text: "Group Members" },
+                { text: "Views", key: "viewCount" },
+                { text: "Downloads", key: "downloadCount" },
+                { text: "Favorites", key: "favoriteCount" }
+            ];
+
+            headers.forEach(header => {
+                let th = document.createElement('th');
+                th.classList.add('all-research-centered', 'sortable');
+                th.textContent = header.text;
+
+                if (header.key) {
+                    const downArrow = document.createElement('span');
+                    downArrow.textContent = '▼'; // Down arrow indicates descending order
+                    downArrow.classList.add('arrow');
+                    th.onclick = () => {
+                        sortTable(header.key, downArrow);
+                        updateArrowDirections(th); // Update arrows when sorting
+                    };
+
+                    th.appendChild(downArrow);
+                }
+
+                headerRow.appendChild(th);
+            });
+
+            tableHead.appendChild(headerRow);
+            capstoneTable.appendChild(tableHead);
+        }
+
+        function AddItemToTable(catID, title, date, authors, views, downloads, favorites) {
+            let trow = document.createElement('tr');
+            const cells = [catID, title, date, authors, views, downloads, favorites];
+
+            cells.forEach(cellData => {
+                let td = document.createElement('td');
+                td.classList.add('all-research-centered');
+                td.innerHTML = cellData;
+                trow.appendChild(td);
+            });
+
+            tbodyCapstone.appendChild(trow);
+        }
+
+        function AddAllItemsToTable(books) {
+            tbodyCapstone.innerHTML = "";  // Clear table body
+            books.forEach(book => {
+                const authors = book.authors.map(author => `${author.firstName} ${author.lastName}`).join(",<br>");
+                AddItemToTable(book.id, book.title, book.year, authors, book.viewCount, book.downloadCount, book.favoriteCount);
+            });
+        }
+
+        function filterAndDisplayBooks() {
+            const selectedCourse = courseDropdown.value;
+            const filteredBooks = selectedCourse === "all"
+                ? books
+                : books.filter(book => book.courseAcronym === selectedCourse);
+
+            if (filteredBooks.length === 0) {
+                document.getElementById('tbody').innerHTML = "<p>No research titles found</p>";
+            } else {
+                AddAllItemsToTable(filteredBooks);
+            }
+        }
+
+        const booksRef = ref(db, 'Books/');
+        onValue(booksRef, (snapshot) => {
+            books = [];
+
+            snapshot.forEach(childSnapshot => {
+                const book = childSnapshot.val();
+                if (book.id && book.title && book.year && book.authors) {
+                    books.push(book);
+                }
+            });
+
+            books.sort((a, b) => b.viewCount - a.viewCount); // Descending order by view count
+
+            document.getElementById("total-capstone-count").textContent = books.length;
+            AddAllItemsToTable(books);
+            currentSortKey = 'viewCount'; // Set current sort key to views
+            currentSortOrder = 'desc'; // Set current sort order to descending
+        });
+
+        function sortTable(key, arrow) {
+            const selectedCourse = courseDropdown.value;
+            const booksToDisplay = selectedCourse === "all"
+                ? books
+                : books.filter(book => book.courseAcronym === selectedCourse);
+
+            if (currentSortKey === key) {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortOrder = 'asc';
+            }
+            currentSortKey = key;
+
+            arrow.style.transform = currentSortOrder === 'asc' ? 'rotate(180deg)' : 'rotate(0deg)';
+
+            const sortedBooks = [...booksToDisplay].sort((a, b) => {
+                if (key === 'id') {
+                    return currentSortOrder === 'desc' ? a.id.localeCompare(b.id) : b.id.localeCompare(a.id);
+                } else {
+                    return currentSortOrder === 'desc' ? b[key] - a[key] : a[key] - b[key];
+                }
+            });
+
+            AddAllItemsToTable(sortedBooks);
+        }
+
+        function updateArrowDirections(clickedHeader) {
+            const headers = capstoneTable.querySelectorAll('th');
+            headers.forEach(header => {
+                if (header !== clickedHeader) {
+                    const arrow = header.querySelector('.arrow');
+                    if (arrow) {
+                        arrow.style.transform = 'rotate(0deg)'; // Reset other arrows
+                    }
+                }
+            });
+        }
+
+        courseDropdown.addEventListener('change', filterAndDisplayBooks);
+        onValue(booksRef, (snapshot) => {
+            books = [];
+            const coursesSet = new Set();
+
+            snapshot.forEach(childSnapshot => {
+                const book = childSnapshot.val();
+                if (book.id && book.title && book.year && book.authors) {
+                    books.push(book);
+                    if (book.courseAcronym && book.courseName) {
+                        coursesSet.add(JSON.stringify({ courseAcronym: book.courseAcronym, courseName: book.courseName }));
+                    }
+                }
+            });
+
+            const courses = Array.from(coursesSet).map(course => JSON.parse(course));
+            populateCourseDropdown(courses);
+
+            filterAndDisplayBooks();
+        });
+
+        document.getElementById('exportButton').addEventListener('click', function () {
+            Swal.fire({
+                title: 'Export Options',
+                text: 'Choose a format to export:',
+                icon: 'info',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'PDF',
+                denyButtonText: 'Excel',
+                cancelButtonText: 'CSV'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    exportToPDF(books);
+                } else if (result.isDenied) {
+                    exportToExcel(books);
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    exportToCSV(books);
+                }
+            });
+        });
+
+        function exportToPDF(books) {
+            showLoader();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const leftLogo = '/images/BSU.png'; // Replace with the actual path
+            const rightLogo = '/images/Sarmiento.png'; // Replace with the actual path
+
+            doc.addImage(leftLogo, 'PNG', 10, 10, 30, 30); // Left logo
+            doc.addImage(rightLogo, 'PNG', 170, 10, 30, 30); // Right logo
+
+            doc.setFontSize(16); // Larger font for BSU
+            doc.setFont('helvetica', 'bold');
+            doc.text('Bulacan State University', 105, 20, { align: 'center' });
+
+            doc.setFontSize(12); // Smaller font for other lines
+            doc.text('Sarmiento Campus', 105, 26, { align: 'center' });
+            doc.setFont('helvetica', 'normal');
+            doc.text('Republic of the Philippines', 105, 32, { align: 'center' });
+            doc.text('City of San Jose del Monte, Bulacan', 105, 38, { align: 'center' });
+            doc.text('Tel. No: (044) 815-4089', 105, 44, { align: 'center' });
+            doc.text('Email Address: sarmiento@bulsu.edu.ph', 105, 50, { align: 'center' });
+
+            let yOffset = 60; // Adjust start point after header
+
+            const selectedCourse = courseDropdown.value;
+
+            if (selectedCourse === "all") {
+                const groupedBooks = books.reduce((acc, book) => {
+                    acc[book.courseName] = acc[book.courseName] || [];
+                    acc[book.courseName].push(book);
+                    return acc;
+                }, {});
+
+                Object.keys(groupedBooks).forEach(courseName => {
+                    if (groupedBooks[courseName].length === 0) return;
+
+                    doc.setFontSize(14);
+                    doc.text(`Course: ${courseName}`, 10, yOffset);
+                    yOffset += 10;
+
+                    const tableData = groupedBooks[courseName].map(book => [
+                        book.id,
+                        book.title,
+                        new Date(book.uploadDate).toLocaleDateString(),
+                        book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", "),
+                        book.viewCount,
+                        book.downloadCount,
+                        book.favoriteCount
+                    ]);
+
+                    doc.autoTable({
+                        startY: yOffset,
+                        head: [["Research ID", "Title", "Date Uploaded", "Group Members", "Views", "Downloads", "Favorites"]],
+                        body: tableData,
+                        styles: { halign: 'justify' }
+                    });
+
+                    yOffset = doc.lastAutoTable.finalY + 10;
+                });
+            } else {
+                const filteredBooks = books.filter(book => book.courseAcronym === selectedCourse);
+
+                if (filteredBooks.length === 0) {
+                    Swal.fire('No Data', 'No research titles found for the selected course.', 'info');
+                    return;
+                }
+
+                const courseName = filteredBooks[0]?.courseName || "Unknown Course";
+                doc.setFontSize(14);
+                doc.text(`Course: ${courseName}`, 10, yOffset);
+
+                const tableData = filteredBooks.map(book => [
+                    book.id,
+                    book.title,
+                    new Date(book.uploadDate).toLocaleDateString(),
+                    book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", "),
+                    book.viewCount,
+                    book.downloadCount,
+                    book.favoriteCount
+                ]);
+
+                doc.autoTable({
+                    startY: yOffset + 10,
+                    head: [["Research ID", "Title", "Date Uploaded", "Group Members", "Views", "Downloads", "Favorites"]],
+                    body: tableData,
+                    styles: { halign: 'justify' }
+                });
+            }
+
+            const currentDate = new Date();
+            const dateString = currentDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeString = currentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const userUID = sessionStorage.getItem("userUID");
+
+            const adminsRef = ref(db, `Admins/${userUID}`);
+            onValue(adminsRef, (snapshot) => {
+                const adminName = snapshot.exists() ? snapshot.val().name : 'CRDU Head';
+
+                doc.setFontSize(10);
+                doc.text(`Date Generated: ${dateString}, ${timeString}`, 10, 290);
+                doc.text(`Prepared by: ${adminName}`, 10, 295);
+
+                setTimeout(() => {
+                    doc.save("Books_Data.pdf");
+                    showSuccessMessage();
+                }, 1000);
+            });
+        }
+
+        function exportToExcel(books) {
+            showLoader();
+            const selectedCourse = courseDropdown.value;
+            const wb = XLSX.utils.book_new();
+
+            if (selectedCourse === "all") {
+                const groupedBooks = books.reduce((acc, book) => {
+                    acc[book.courseName] = acc[book.courseName] || [];
+                    acc[book.courseName].push(book);
+                    return acc;
+                }, {});
+
+                Object.keys(groupedBooks).forEach(courseName => {
+                    if (groupedBooks[courseName].length === 0) return;
+
+                    const truncatedCourseName = courseName.length > 31 ? courseName.substring(0, 31) : courseName;
+
+                    const ws = XLSX.utils.json_to_sheet(groupedBooks[courseName].map(book => ({
+                        "Research ID": book.id,
+                        "Title": book.title,
+                        "Date Uploaded": new Date(book.uploadDate).toLocaleDateString(),
+                        "Group Members": book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", "),
+                        "Views": book.viewCount,
+                        "Downloads": book.downloadCount,
+                        "Favorites": book.favoriteCount
+                    })));
+
+                    XLSX.utils.book_append_sheet(wb, ws, truncatedCourseName);
+                });
+            } else {
+                const filteredBooks = books.filter(book => book.courseAcronym === selectedCourse);
+
+                if (filteredBooks.length === 0) {
+                    Swal.fire('No Data', 'No research titles found for the selected course.', 'info');
+                    return;
+                }
+
+                const ws = XLSX.utils.json_to_sheet(filteredBooks.map(book => ({
+                    "Research ID": book.id,
+                    "Title": book.title,
+                    "Date Uploaded": new Date(book.uploadDate).toLocaleDateString(),
+                    "Group Members": book.authors.map(author => `${author.firstName} ${author.lastName}`).join(", "),
+                    "Views": book.viewCount,
+                    "Downloads": book.downloadCount,
+                    "Favorites": book.favoriteCount
+                })));
+
+                const courseName = filteredBooks[0]?.courseName || "Unknown Course";
+                const truncatedCourseName = courseName.length > 31 ? courseName.substring(0, 31) : courseName;
+                XLSX.utils.book_append_sheet(wb, ws, truncatedCourseName);
+            }
+
+            setTimeout(() => {
+                XLSX.writeFile(wb, "Books_Data.xlsx");
+                showSuccessMessage();
+            }, 1000);
+        }
+
+        function exportToCSV(books) {
+            showLoader();
+            const selectedCourse = courseDropdown.value;
+            let csvContent = "";
+
+            if (selectedCourse === "all") {
+                const groupedBooks = books.reduce((acc, book) => {
+                    acc[book.courseName] = acc[book.courseName] || [];
+                    acc[book.courseName].push(book);
+                    return acc;
+                }, {});
+
+                Object.keys(groupedBooks).forEach(courseName => {
+                    if (groupedBooks[courseName].length === 0) return;
+
+                    csvContent += `Course: ${courseName}\n`;
+                    csvContent += "Research ID,Title,Date Uploaded,Group Members,Views,Downloads,Favorites\n";
+                    csvContent += groupedBooks[courseName].map(book => [
+                        book.id,
+                        `"${book.title}"`,
+                        new Date(book.uploadDate).toLocaleDateString(),
+                        book.authors.map(author => `${author.firstName} ${author.lastName}`).join(' | '),
+                        book.viewCount,
+                        book.downloadCount,
+                        book.favoriteCount
+                    ].join(",")).join("\n") + "\n\n";
+                });
+            } else {
+                const filteredBooks = books.filter(book => book.courseAcronym === selectedCourse);
+
+                if (filteredBooks.length === 0) {
+                    Swal.fire('No Data', 'No research titles found for the selected course.', 'info');
+                    return;
+                }
+
+                const courseName = filteredBooks[0]?.courseName || "Unknown Course";
+                csvContent += `Course: ${courseName}\n`;
+                csvContent += "Research ID,Title,Date Uploaded,Group Members,Views,Downloads,Favorites\n";
+                csvContent += filteredBooks.map(book => [
+                    book.id,
+                    `"${book.title}"`,
+                    new Date(book.uploadDate).toLocaleDateString(),
+                    book.authors.map(author => `${author.firstName} ${author.lastName}`).join(' | '),
+                    book.viewCount,
+                    book.downloadCount,
+                    book.favoriteCount
+                ].join(",")).join("\n");
+            }
+
+            setTimeout(() => {
+                const downloadLink = document.createElement('a');
+                downloadLink.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvContent);
+                downloadLink.target = '_blank';
+                downloadLink.download = 'Books_Data.csv';
+                downloadLink.click();
+                showSuccessMessage();
+            }, 1000);
+        }
+
+        createTableHeader();
+
+        function showLoader() {
+            Swal.fire({
+                title: 'Exporting...',
+                html: 'Please wait while we generate your file.',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+        }
+
+        function showSuccessMessage() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Export Complete',
+                text: 'Your file has been successfully exported.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/teacherLogoutModal.css">
+    <link rel="stylesheet" href="/css/teacherStudents.css">
+    <link rel="stylesheet" href="/css/adviserDashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="message">
+                <div class="circle"></div>
+                <img src="/images/bell.png" class="icn" alt="notification">
+            </div>
+            <div class="dp">
+                <img class="dpicn" alt="dp">
+            </div>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/homepage.png" class="nav-img" alt="homepage">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/student accounts.png" class="nav-img" alt="student management">
+                        <h3>Student Management</h3>
+                    </div>
+                    <div class="nav-option optionSection">
+                        <img src="/images/section head.png" class="nav-img" alt="section">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="category">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/requests.png" class="nav-img" alt="request">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <section class="main">
+            <div class="main-header">
+                <div class="entries-dropdown">
+                    <label for="entriesPerPage">Select Section:</label>
+                    <select id="entriesPerPage"></select>
+                </div>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="search-bar" placeholder="Search...">
+                    <button class="search-button">Search</button>
+                </div>
+                <button class="upload-button" id="uploadButton">Upload Student Lists</button>
+            </div>
+            <table class="student-table" id="student-table">
+            </table>
+        </section>
+    </div>
+    <div id="notificationContainer" class="notification-container"></div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='adviserProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" src="/js/adviserProfile.js"></script>
+    <script rel="javascript" src="/js/teacherStudents.js"></script> 
+    <script type="module" src="/js/adviserLogout.js"></script>
+    <script type="module" src="/js/teacherStudents2.js"></script>
+    <script type="module" src="/js/notification.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, child, onValue, update, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getFirestore, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const firestore = getFirestore(app);
+
+        const userUID = sessionStorage.getItem("userUID");
+        const entriesDropdown = document.getElementById("entriesPerPage");
+        const coursesRef = ref(db, `Courses/${userUID}`);
+
+        document.getElementById("uploadButton").addEventListener("click", () => {
+            const entriesDropdown = document.getElementById("entriesPerPage");
+            const sections = Array.from(entriesDropdown.options).map(option => ({
+                value: option.value,
+                text: option.text
+            }));
+
+            const swalContent = `
+    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+        <label for="sectionSelect" style="margin-right: 10px;">Select Section:</label>
+        <select id="sectionSelect" class="swal2-input" style="width: 30%; height: 35px;">
+            <option value="" disabled selected>Select a section</option> 
+            ${sections
+                    .filter(section => section.value !== "" && section.value !== "showAll")
+                    .map(section => `<option value="${section.value}">${section.text}</option>`)
+                    .join('')}
+        </select>
+    </div>
+
+    <div style="font-size: 14px; max-width: 550px; line-height: .8; margin-top: 20px; margin-bottom: 10px;">
+        <p><strong>Guide</strong></p>
+        <p>Header format should be: [StudentNo, FullName, Gender, Email]</p>
+        <p>Example: 2021512345, DELA CRUZ, Juan A., M, juandela.cruz123@gmail.com</p>
+    </div>
+
+    <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" class="swal2-input" style="width: 90%; height: 40px; padding: 4px;">
+`;
+
+            Swal.fire({
+                title: 'Upload Student List',
+                html: swalContent,
+                width: 600,
+                showCancelButton: true,
+                confirmButtonText: 'Select File',
+                cancelButtonText: 'Cancel',
+                preConfirm: () => {
+                    const sectionSelect = document.getElementById("sectionSelect");
+                    const selectedSection = sectionSelect.value;
+                    const fileInput = document.getElementById("fileInput");
+                    const file = fileInput.files[0];
+
+                    if (!selectedSection) {
+                        Swal.showValidationMessage('Please select a section.');
+                        return false;
+                    }
+                    if (!file) {
+                        Swal.showValidationMessage('Please select a file.');
+                        return false;
+                    }
+                    const validExtensions = ['csv', 'xlsx', 'xls'];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+                    if (!validExtensions.includes(fileExtension)) {
+                        Swal.showValidationMessage('Only CSV and Excel files are allowed.');
+                        return false;
+                    }
+                    return { selectedSection, file };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { selectedSection, file } = result.value;
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: `You are about to upload: ${file.name}`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, upload it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((confirmResult) => {
+                        if (confirmResult.isConfirmed) {
+                            Swal.fire({
+                                title: 'Uploading...',
+                                html: 'Please wait while we process your file.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading(); // Show the loading spinner
+
+                                    if (file.name.endsWith('.csv')) {
+                                        parseCSV(file, selectedSection).then(() => {
+                                            Swal.close(); // Close loading modal after upload
+                                            Swal.fire({
+                                                title: 'Success!',
+                                                text: 'Students have been uploaded successfully.',
+                                                icon: 'success',
+                                                confirmButtonText: 'Okay'
+                                            });
+                                        }).catch((error) => {
+                                            Swal.close();
+                                            Swal.fire({
+                                                title: 'Error',
+                                                text: `Failed to upload file: ${error.message}`,
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay'
+                                            });
+                                        });
+                                    } else {
+                                        parseExcel(file, selectedSection).then(() => {
+                                            Swal.close(); // Close loading modal after upload
+                                            Swal.fire({
+                                                title: 'Success!',
+                                                text: 'Students have been uploaded successfully.',
+                                                icon: 'success',
+                                                confirmButtonText: 'Okay'
+                                            });
+                                        }).catch((error) => {
+                                            Swal.close();
+                                            Swal.fire({
+                                                title: 'Error',
+                                                text: `Failed to upload file: ${error.message}`,
+                                                icon: 'error',
+                                                confirmButtonText: 'Okay'
+                                            });
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        function parseCSV(file, sectionKey) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(file, {
+                    header: true,
+                    complete: (results) => {
+                        const studentData = results.data;
+                        processStudentData(studentData, sectionKey)
+                            .then(resolve)
+                            .catch(reject);
+                    },
+                    error: (error) => reject(error)
+                });
+            });
+        }
+
+        function parseExcel(file, sectionKey) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = new Uint8Array(event.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const studentData = XLSX.utils.sheet_to_json(worksheet);
+                        processStudentData(studentData, sectionKey)
+                            .then(resolve)
+                            .catch(reject);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = (error) => reject(error);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function formatDate(dateString) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB', options);
+        }
+
+        function processStudentData(students, sectionKey) {
+            const sectionRef = ref(db, `Courses/${userUID}`);
+            let sectionName = '';
+            let courseAcronym = '';
+            const currentDate = new Date().toISOString();
+
+            return get(sectionRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    snapshot.forEach((courseSnapshot) => {
+                        const courseData = courseSnapshot.val();
+                        if (courseData) {
+                            for (const majorKey in courseData) {
+                                const majorData = courseData[majorKey];
+                                if (majorData && majorData[sectionKey]) {
+                                    const sectionData = majorData[sectionKey];
+                                    if (sectionData && sectionData.sectionName) {
+                                        sectionName = sectionData.sectionName;
+                                        courseAcronym = courseData.courseAcronym;
+                                    }
+                                }
+
+                                if (courseData.noMajor) {
+                                    if (courseData[sectionKey]) {
+                                        const sectionData = courseData[sectionKey];
+                                        if (sectionData && sectionData.sectionName) {
+                                            sectionName = sectionData.sectionName;
+                                            courseAcronym = courseData.courseAcronym;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                return checkAndProcessData(students, sectionName, courseAcronym, currentDate);
+            }).catch((error) => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error During Processing',
+                    text: `An error occurred: ${error.message}`
+                });
+                console.error(`Error during processStudentData: ${error.message}`);
+            });
+        }
+
+        function checkAndProcessData(newStudents, sectionName, courseAcronym, currentDate) {
+            const sectionStudentsRef = ref(db, `accounts`);
+            const newStudentMap = new Map();
+
+            newStudents.forEach(student => {
+                const studentNo = formatStudentNo(student.StudentNo);
+                if (studentNo) newStudentMap.set(studentNo, student);
+            });
+
+            return get(sectionStudentsRef).then((snapshot) => {
+                if (!snapshot.exists()) {
+                    return uploadNewStudents(newStudents, sectionName, courseAcronym);
+                }
+
+                const existingStudents = [];
+                snapshot.forEach((studentSnap) => {
+                    const studentData = studentSnap.val();
+                    if (studentData.section === sectionName) {
+                        existingStudents.push({ uid: studentSnap.key, ...studentData });
+                    }
+                });
+
+                const existingStudentMap = new Map();
+                existingStudents.forEach(student => existingStudentMap.set(student.studentno, student));
+
+                const existingKeys = Array.from(existingStudentMap.keys());
+                const newKeys = Array.from(newStudentMap.keys());
+
+                const addedKeys = newKeys.filter(key => !existingKeys.includes(key));
+                const removedKeys = existingKeys.filter(key => !newKeys.includes(key));
+
+                if (addedKeys.length === 0 && removedKeys.length === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'No Changes Detected',
+                        text: 'The uploaded student list is identical to the existing data.'
+                    });
+                    return Promise.resolve();
+                }
+
+                const deletionPromises = removedKeys.map(key => {
+                    const student = existingStudentMap.get(key);
+                    if (student && student.uid) {
+                        return remove(ref(db, `accounts/${student.uid}`));
+                    }
+                    return Promise.resolve(); // Skip if student.uid is missing
+                });
+
+                return Promise.all(deletionPromises)
+                    .then(() => {
+                        if (addedKeys.length > 0) {
+                            const newStudentData = addedKeys.map(key => newStudentMap.get(key));
+                            return uploadNewStudents(newStudentData, sectionName, courseAcronym);
+                        }
+                        return Promise.resolve(); // No new students to add
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error During Deletion',
+                            text: `An error occurred while removing students: ${error.message}`
+                        });
+                        console.error(`Error during deletion: ${error.message}`);
+                    });
+            });
+        }
+
+        function arraysEqual(arr1, arr2) {
+            return JSON.stringify(arr1.sort()) === JSON.stringify(arr2.sort());
+        }
+
+        function formatStudentNo(studentNo) {
+            if (typeof studentNo === 'string' && studentNo.includes('E')) {
+                return parseInt(studentNo, 10).toString();
+            }
+            return studentNo ? studentNo.toString().trim() : null;
+        }
+
+        function uploadNewStudents(students, sectionName, courseAcronym) {
+            Swal.fire({
+                title: 'Uploading New Students',
+                html: 'Please wait while the new student list is being processed...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const uploadPromises = students.map(student => {
+                const studentNo = formatStudentNo(student.StudentNo);
+                const email = student.Email;
+                const password = `@Bulsu${studentNo}`;
+
+                if (!studentNo || !/^\d{10}$/.test(studentNo)) {
+                    console.warn(`Skipping invalid StudentNo: ${studentNo}`);
+                    return Promise.resolve();
+                }
+
+                return fetchSignInMethodsForEmail(auth, email).then(signInMethods => {
+                    if (signInMethods.length > 0) {
+                        return get(ref(db, `accounts`)).then(snapshot => {
+                            if (snapshot.exists()) {
+                                snapshot.forEach(studentSnap => {
+                                    if (studentSnap.val().email === email) {
+                                        const uid = studentSnap.key;
+                                        return update(ref(db, `accounts/${uid}`), { section: sectionName, courseAcronym });
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        return createUserWithEmailAndPassword(auth, email, password).then(userCredential => {
+                            const user = userCredential.user;
+                            const uid = user.uid;
+
+                            const userData = {
+                                studentno: studentNo,
+                                fullname: student.FullName,
+                                gender: student.Gender,
+                                email: email,
+                                nickname: studentNo,
+                                section: sectionName,
+                                courseAcronym: courseAcronym, // Add course acronym here
+                                userType: 'user',
+                                profileImage: '',
+                                password: password,
+                                creationDate: formatDate(new Date().toISOString())
+                            };
+
+                            return set(ref(db, `accounts/${uid}`), userData).then(() => {
+                                sendPasswordResetEmail(auth, email)
+                                    .then(() => console.log(`Password reset email sent to ${email}.`))
+                                    .catch(error => console.error(`Error sending password reset email: ${error.message}`));
+                            });
+                        });
+                    }
+                });
+            });
+
+            return Promise.all(uploadPromises).then(() => {
+                Swal.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Upload Complete',
+                    text: 'The new student list has been successfully uploaded.'
+                });
+            }).catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error During Upload',
+                    text: `An error occurred while uploading: ${error.message}`
+                });
+                console.error(`Error during uploadNewStudents: ${error.message}`);
+            });
+        }
+    </script>
+</body>
+
+</html>

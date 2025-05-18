@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/teacherLogoutModal.css">
+    <link rel="stylesheet" href="/css/adviserProfile.css">
+    <link rel="stylesheet" href="/css/adviserDashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="message">
+                <div class="circle"></div>
+                <img src="/images/bell.png" class="icn" alt="notification">
+            </div>
+            <div class="dp">
+                <img class="dpicn" alt="dp">
+            </div>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/homepage.png" class="nav-img" alt="homepage">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionStudManage">
+                        <img src="/images/student accounts.png" class="nav-img" alt="student management">
+                        <h3>Student Management</h3>
+                    </div>
+                    <div class="nav-option optionSection">
+                        <img src="/images/section head.png" class="nav-img" alt="section">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="category">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/requests.png" class="nav-img" alt="request">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="profile-card">
+                <div class="profile-image-section">
+                    <img alt="User Image" class="profile-image">
+                    <input type="file" id="imageUpload" style="display: none;" accept="image/*">
+                    <button id="uploadButton">Upload New Picture</button>
+                </div>
+                <div class="profile-info-section">
+                    <label for="profileNameInput">Name:</label>
+                    <input type="text" id="profileNameInput" class="profile-name-input" autocomplete="off">
+                    <label for="profileEmailInput">Email:</label>
+                    <input type="text" id="profileEmailInput" class="profile-email-input" readonly>
+                    <label for="currentPassword">Current Password:</label>
+                    <div class="password-input-container">
+                        <input type="password" id="currentPassword" class="profile-password-input">
+                    </div>
+                    <label for="newPassword">New Password:</label>
+                    <div class="password-input-container">
+                        <input type="password" id="newPassword" class="profile-password-input">
+                    </div>
+                    <button id="saveChangesButton">Save Changes</button>
+                </div>
+            </div>
+            <button id="addCourseBtn" style="padding: 10px 20px; margin: 20px; font-size: 16px;">Add Course</button>
+
+            <div class="course-section-card">
+                <h3>Selected Course Information</h3>
+                <div id="selectedCourseInfoContainer"></div>
+            </div>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='adviserProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <div id="notificationContainer" class="notification-container"></div>
+    <script type="module" rel="javascript" src="/js/adviserProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adviserLogout.js"></script>
+    <script type="module" src="/js/researchTeacherProfile.js"></script>
+    <script type="module" src="/js/notification.js"></script>
+    <script src="/js/adviserViewProfile.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, onValue, get, set, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth(app);
+
+        let currentName = "";
+
+        function loadProfileData() {
+            const userUID = sessionStorage.getItem('userUID');
+
+            if (userUID) {
+                const userRef = ref(db, `Research Teacher/${userUID}`);
+                onValue(userRef, (snapshot) => {
+                    const adminInfo = snapshot.val();
+
+                    if (adminInfo) {
+                        currentName = adminInfo.name;
+                        document.getElementById('profileNameInput').value = adminInfo.name;
+                        document.getElementById('profileEmailInput').value = adminInfo.email;
+
+                        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/re-search-9c52f.appspot.com/o/ProfileImages%2F${userUID}?alt=media`;
+                        const profileImage = document.querySelector('.profile-image');
+                        const profilePic = document.querySelector('.profile-pic');
+
+                        profileImage.src = imageUrl;
+                        profilePic.src = imageUrl;
+
+                        profileImage.onerror = profilePic.onerror = () => {
+                            profileImage.src = "/images/administration.png"; // Default image
+                            profilePic.src = "/images/administration.png"; // Default image
+                        };
+
+                        // Check if there are courses already added
+                        const coursesRef = ref(db, `Research Teacher/${userUID}/coursesSections`);
+                        get(coursesRef).then(courseSnapshot => {
+                            if (courseSnapshot.exists()) {
+                                document.getElementById('addCourseBtn').style.visibility = 'hidden'; // Hide button if courses exist
+                            } else {
+                                document.getElementById('addCourseBtn').style.visibility = 'visible'; // Show button if no courses
+                            }
+                        });
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+
+        const selectedCourseInfo = [];
+
+        async function fetchCourseData() {
+            const coursesRef = ref(db, 'Categories');
+            const snapshot = await get(coursesRef);
+            const data = snapshot.val();
+            const courses = [];
+
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    const courseName = data[key].courseName;
+                    const courseAcronym = data[key].courseAcronym;
+                    const majors = data[key].noMajor
+                        ? []
+                        : (data[key].majors || []).filter(major => major !== "temp_major"); // Remove "temp_major"
+                    courses.push({ courseId: key, courseName, courseAcronym, majors, noMajor: data[key].noMajor });
+                }
+            }
+            return courses;
+        }
+
+        document.getElementById('addCourseBtn').addEventListener('click', () => {
+            const userUID = sessionStorage.getItem('userUID');
+            if (userUID) {
+                showCourseForm(userUID);
+            } else {
+                alert("Please log in first.");
+            }
+        });
+
+        async function showCourseForm(userId) {
+            try {
+                const courses = await fetchCourseData();
+                const courseOptions = courses.map(course => `<option value="${course.courseId}">${course.courseName} (${course.courseAcronym})</option>`).join('');
+
+                Swal.fire({
+                    title: 'Fill Out Course Information',
+                    html: `
+<div style="display: flex; flex-direction: column; gap: 15px; text-align: left;">
+    <label for="courseDropdown" style="font-size: 14px;">Course:</label>
+    <select id="courseDropdown" class="swal2-input" style="width: 100%; height: 40px;">${courseOptions}</select>
+
+    <label for="majorDropdown" style="font-size: 14px;">Majors (If Applicable):</label>
+    <select id="majorDropdown" class="swal2-input" style="width: 100%; height: 40px;">
+        <option value="">Select Major</option>
+    </select>
+
+    <label for="sectionCheckboxes" style="font-size: 14px;">Section:</label>
+    <div id="sectionCheckboxes" style="display: flex; flex-direction: column; gap: 10px;"></div>
+</div>
+            `,
+                    focusConfirm: false,
+                    preConfirm: async () => {
+                        const selectedCourseId = document.getElementById('courseDropdown').value;
+                        const selectedMajor = document.getElementById('majorDropdown').value;
+                        const sectionCheckboxes = document.querySelectorAll('#sectionCheckboxes input[type="checkbox"]:checked');
+                        const selectedSections = Array.from(sectionCheckboxes).map(cb => cb.value);
+
+                        if (!selectedCourseId || selectedSections.length === 0) {
+                            Swal.showValidationMessage("Please fill out the required fields.");
+                            return false;
+                        }
+
+                        const selectedCourse = courses.find(course => course.courseId === selectedCourseId);
+                        const { courseName, courseAcronym, noMajor } = selectedCourse;
+
+                        const courseRef = ref(db, `Courses/${userId}/${selectedCourseId}`);
+                        const currentDataSnapshot = await get(courseRef);
+                        const currentData = currentDataSnapshot.exists() ? currentDataSnapshot.val() : {};
+
+                        currentData.courseName = courseName;
+                        currentData.courseAcronym = courseAcronym;
+                        if (noMajor) {
+                            currentData.noMajor = true;
+                        }
+
+                        if (selectedMajor) {
+                            if (!currentData[selectedMajor]) {
+                                currentData[selectedMajor] = {};
+                            }
+                            selectedSections.forEach(section => {
+                                currentData[selectedMajor][section] = {
+                                    sectionName: `${courseAcronym} ${section}`,
+                                };
+                            });
+                        } else {
+                            selectedSections.forEach(section => {
+                                currentData[section] = {
+                                    sectionName: `${courseAcronym} ${section}`,
+                                };
+                            });
+                        }
+
+                        await set(courseRef, currentData);
+
+                        const researchTeacherRef = ref(db, `Research Teacher/${userId}/coursesSections`);
+                        const teacherDataSnapshot = await get(researchTeacherRef);
+                        const teacherData = teacherDataSnapshot.exists() ? teacherDataSnapshot.val() : {};
+
+                        if (!teacherData[courseAcronym]) {
+                            teacherData[courseAcronym] = {};
+                        }
+                        selectedSections.forEach(section => {
+                            teacherData[courseAcronym][section] = section;
+                        });
+
+                        await set(researchTeacherRef, teacherData);
+
+                        return true;
+                    },
+                    didOpen: async () => {
+                        const courseDropdown = document.getElementById('courseDropdown');
+                        const majorDropdown = document.getElementById('majorDropdown');
+                        const sectionCheckboxesContainer = document.getElementById('sectionCheckboxes');
+
+                        async function updateSectionCheckboxes() {
+                            const selectedCourseId = courseDropdown.value;
+                            const selectedCourse = courses.find(course => course.courseId === selectedCourseId);
+                            const selectedMajor = majorDropdown.value;
+
+                            sectionCheckboxesContainer.innerHTML = '';
+                            const sectionsByYear = {
+                                "3rd Year": [...Array.from({ length: 6 }, (_, i) => `3${String.fromCharCode(65 + i)}`)],
+                                "4th Year": [...Array.from({ length: 6 }, (_, i) => `4${String.fromCharCode(65 + i)}`)],
+                            };
+
+                            const courseRef = ref(db, `Courses/${userId}/${selectedCourseId}`);
+                            const courseDataSnapshot = await get(courseRef);
+                            const courseData = courseDataSnapshot.exists() ? courseDataSnapshot.val() : {};
+
+                            Object.entries(sectionsByYear).forEach(([yearLabel, sections]) => {
+                                const yearDiv = document.createElement('div');
+                                yearDiv.innerHTML = `<strong>${yearLabel}:</strong>`;
+                                sectionCheckboxesContainer.appendChild(yearDiv);
+
+                                sections.forEach(section => {
+                                    const sectionId = `${selectedCourse.courseAcronym} ${section}`;
+                                    const isChecked = selectedMajor
+                                        ? courseData[selectedMajor]?.[section]?.sectionName === sectionId
+                                        : courseData[section]?.sectionName === sectionId;
+
+                                    const checkbox = document.createElement('label');
+                                    checkbox.style.marginRight = "10px";
+                                    checkbox.innerHTML = `
+                                <input type="checkbox" value="${section}" ${isChecked ? 'checked' : ''}> ${section}
+                            `;
+                                    sectionCheckboxesContainer.appendChild(checkbox);
+                                });
+                            });
+                        }
+
+                        courseDropdown.addEventListener('change', async () => {
+                            const selectedCourseId = courseDropdown.value;
+                            const selectedCourse = courses.find(course => course.courseId === selectedCourseId);
+
+                            majorDropdown.innerHTML = `<option value="" selected hidden>Select Major</option>`;
+
+                            if (selectedCourse.noMajor) {
+                                majorDropdown.disabled = true;
+                            } else {
+                                majorDropdown.disabled = false;
+                                selectedCourse.majors.forEach(major => {
+                                    majorDropdown.innerHTML += `<option value="${major}">${major}</option>`;
+                                });
+                            }
+
+                            await updateSectionCheckboxes();
+                        });
+
+                        majorDropdown.addEventListener('change', updateSectionCheckboxes);
+
+                        courseDropdown.dispatchEvent(new Event('change'));
+                    },
+                });
+            } catch (error) {
+                console.error("Error fetching courses:", error);
+            }
+        }
+
+        function updateSelectedCourseInfo() {
+            const container = document.getElementById('selectedCourseInfoContainer');
+            container.innerHTML = '';
+
+            selectedCourseInfo.forEach(({ course, major, sections }, index) => {
+                const courseDiv = document.createElement('div');
+                courseDiv.classList.add('course-creation-card');
+
+                const majorDisplay = major ? major.majorName : 'No Specific Major';
+                const sectionDisplays = sections.length > 0 ? sections.join(', ') : 'No Sections Selected';
+
+                courseDiv.innerHTML = `
+            <p><strong>Course:</strong> ${course}</p>
+            <p><strong>Major:</strong> ${majorDisplay}</p>
+            <p><strong>Sections:</strong> ${sectionDisplays}</p>
+            <button class="remove-course-btn" data-index="${index}">Remove</button>
+        `;
+
+                container.appendChild(courseDiv);
+            });
+
+            // Attach event listeners to remove buttons
+            document.querySelectorAll('.remove-course-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const index = event.target.getAttribute('data-index');
+                    removeSelectedSection(index);
+                });
+            });
+        }
+
+
+        async function removeSelectedSection(index) {
+            const userUID = sessionStorage.getItem('userUID');
+            if (!userUID) {
+                alert("Please log in first.");
+                return;
+            }
+
+            const { course, courseAcronym } = selectedCourseInfo[index];
+            const courseId = course.replace(/ /g, "_"); // Sanitized course ID
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `This will remove the course "${course}" and all associated sections.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Remove',
+                cancelButtonText: 'Cancel',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const courseRef = ref(db, `Courses/${userUID}`);
+                        const courseSnapshot = await get(courseRef);
+
+                        if (courseSnapshot.exists()) {
+                            await set(courseRef, null); // Completely remove the course node
+                            console.log(`Course "${course}" removed from Courses node.`);
+                        } else {
+                            console.warn(`Course "${course}" not found in Courses node.`);
+                        }
+
+                        const teacherCourseRef = ref(db, `Research Teacher/${userUID}/coursesSections/${courseAcronym}`);
+                        await set(teacherCourseRef, null); // Completely remove the coursesSections for this course
+                        console.log(`Course "${course}" removed from Research Teacher node.`);
+
+                        selectedCourseInfo.splice(index, 1); // Remove course from local array
+                        updateSelectedCourseInfo(); // Refresh UI
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Removed',
+                            text: `The course "${course}" and its associated sections have been successfully removed.`,
+                        });
+                    } catch (error) {
+                        console.error("Error removing course:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred while removing the course.',
+                        });
+                    }
+                }
+            });
+        }
+
+
+        async function syncCoursesWithDatabase(userId) {
+            const userCoursesRef = ref(db, `Courses/${userId}`);
+            const coursesData = {};
+
+            selectedCourseInfo.forEach(({ course, major, sections }) => {
+                const courseId = course.replace(/ /g, "_"); // Use course name as unique ID
+                coursesData[courseId] = { courseName: course };
+
+                if (major) {
+                    coursesData[courseId][major.majorName] = {};
+                    sections.forEach(section => {
+                        coursesData[courseId][major.majorName][section] = { sectionName: section };
+                    });
+                } else {
+                    coursesData[courseId].noMajor = true;
+                    sections.forEach(section => {
+                        coursesData[courseId][section] = { sectionName: section };
+                    });
+                }
+            });
+
+            await set(userCoursesRef, coursesData);
+        }
+
+        async function fetchUserCourses(userId) {
+            const userCoursesRef = ref(db, `Courses/${userId}`);
+            const snapshot = await get(userCoursesRef);
+
+            if (snapshot.exists()) {
+                const coursesData = snapshot.val();
+                selectedCourseInfo.length = 0;
+
+                for (const courseId in coursesData) {
+                    if (coursesData.hasOwnProperty(courseId)) {
+                        const courseInfo = coursesData[courseId];
+
+                        if (!courseInfo || typeof courseInfo !== 'object') {
+                            console.warn(`Invalid course structure for courseId: ${courseId}`, courseInfo);
+                            continue;
+                        }
+
+                        const courseName = courseInfo.courseName || "Unnamed Course";
+                        const courseAcronym = courseInfo.courseAcronym || "N/A";
+                        const noMajor = courseInfo.noMajor || false;
+
+                        let sections = [];
+                        let major = null;
+
+                        if (noMajor) {
+                            sections = Object.keys(courseInfo)
+                                .filter(key => !['courseName', 'courseAcronym', 'noMajor'].includes(key))
+                                .map(sectionKey => courseInfo[sectionKey]?.sectionName);
+                        } else {
+                            const majors = Object.keys(courseInfo).filter(
+                                key => !['courseName', 'courseAcronym', 'noMajor'].includes(key)
+                            );
+
+                            if (majors.length > 0) {
+                                majors.forEach(majorName => {
+                                    const majorSections = courseInfo[majorName];
+                                    const majorSectionsList = Object.keys(majorSections).map(
+                                        sectionKey => majorSections[sectionKey]?.sectionName
+                                    );
+                                    selectedCourseInfo.push({
+                                        course: courseName,
+                                        major: { majorName },
+                                        sections: majorSectionsList.filter(Boolean),
+                                        courseAcronym,
+                                    });
+                                });
+                                continue; // Skip adding the course as no-major since it's major-specific
+                            }
+                        }
+
+                        selectedCourseInfo.push({
+                            course: courseName,
+                            major: null, // No specific major
+                            sections: sections.filter(Boolean),
+                            courseAcronym,
+                        });
+                    }
+                }
+
+                updateSelectedCourseInfo();
+            }
+        }
+
+        const userUID = sessionStorage.getItem('userUID');
+        if (userUID) {
+            loadProfileData();
+            fetchUserCourses(userUID);
+        }
+    </script>
+
+</body>
+
+</html>

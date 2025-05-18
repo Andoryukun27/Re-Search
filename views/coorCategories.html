@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/coorCategories.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <aside class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="Dashboard Icon">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="Users Icon">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="Capstone Icon">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/categories.png" class="nav-img" alt="Category Icon">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="Statistics Icon">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="Requests Icon">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        <section class="main">
+            <div class="main-header">
+                <div class="search-container">
+                    <img src="/images/search.png" class="search-icon" alt="search icon">
+                    <input type="text" class="search-input" id="search-bar" placeholder="Search...">
+                    <span class="clear-icon" id="clear-icon">&times;</span>
+                    <button class="search-button" id="searchButton">Search</button>
+                </div>
+                <button class="add-category-button">Add Category</button>
+            </div>
+            <div class="categories-accordion">
+            </div>
+        </section>
+    </div>
+    <div class="add-category-modal">
+        <div class="add-category-modal-content">
+            <h2>Add Category</h2>
+            <label for="courseName">Enter Course</label>
+            <div class="course-inputs">
+                <input type="text" id="courseName" placeholder="Course Name" autocomplete="off" required>
+                <input type="text" id="courseAcronym" placeholder="Acronym" autocomplete="off"
+                    autocapitalize="characters" required>
+            </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="noMajorCheckbox" class="styled-checkbox">
+                <span class="styled-label">No Specific Major</span>
+            </div>
+            <label>Enter Major</label>
+            <div class="major-input-container" id="majorInputsContainer">
+                <input type="text" id="majorName" placeholder="Major Name" autocomplete="off" required>
+                <button id="addMajorButton"> + Add Major</button>
+            </div>
+            <div id="majorList"></div>
+            <div class="modal-actions">
+                <button id="submitCategoryButton">Submit</button>
+                <button id="cancelCategoryButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="options-box">
+    </div>
+    <div class="edit-category-modal">
+        <div class="edit-category-content">
+            <h2>Edit Category</h2>
+            <label for="editCourseName">Course Name</label>
+            <input type="text" id="editCourseName" placeholder="Enter Course Name" required>
+
+            <label for="editCourseAcronym">Course Acronym</label>
+            <input type="text" id="editCourseAcronym" placeholder="Enter Course Acronym" required>
+
+            <div class="edit-modal-actions">
+                <button id="saveEditCategoryButton">Save</button>
+                <button id="cancelEditCategoryButton">Cancel</button>
+                <button id="removeEditCategoryButton">Remove</button>
+            </div>
+        </div>
+    </div>
+    <div class="add-major-modal">
+        <div class="add-major-content">
+            <h2>Add Major</h2>
+            <input type="text" id="newMajorName" placeholder="Major Name" autocomplete="off" required>
+            <div class="add-major-actions">
+                <button id="saveMajorButton" class="add-major-btn save-btn">Save Major</button>
+                <button id="cancelMajorButton" class="add-major-btn cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="renameMajorModal" class="rename-major-modal">
+        <div class="rename-major-content">
+            <h2>Edit Major</h2>
+            <input type="text" id="majorNameInput" placeholder="Enter new major name">
+            <div class="rename-modal-actions">
+                <button id="saveMajorChanges" class="rename-save-btn">Save</button>
+                <button id="cancelMajorEdit" class="rename-cancel-btn">Cancel</button>
+                <button id="removeMajor" class="rename-remove-btn">Remove</button>
+            </div>
+        </div>
+    </div>
+    <div id="confirmationPromptModal" class="modal-confirmation">
+        <div class="confirmation-content">
+            <p id="confirmationMessage" class="confirmation-message">
+            </p>
+            <div class="confirmation-actions">
+                <button id="confirmRemoveCategoryButton" class="confirm-btn">Yes</button>
+                <button id="cancelRemoveCategoryButton" class="cancel-btn">No</button>
+            </div>
+        </div>
+    </div>
+    <div id="confirmationMajorModal" class="modal-confirmation">
+        <div class="confirmation-content">
+            <p id="majorConfirmationMessage" class="confirmation-message">
+            </p>
+            <div class="confirmation-actions">
+                <button id="confirmRemoveMajorButton" class="confirm-btn">Yes</button>
+                <button id="cancelRemoveMajorButton" class="cancel-btn">No</button>
+            </div>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script rel="javascript" src="/js/coorCategory.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.4/dist/sweetalert2.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, child, onValue, update, set, get, remove, push } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const categoriesRef = ref(db, 'Categories');
+
+        const courseNameInput = document.getElementById('courseName');
+        const courseAcronymInput = document.getElementById('courseAcronym');
+
+        function displayMessage(message, type) {
+            let icon;
+            let title;
+
+            switch (type) {
+                case 'success':
+                    icon = 'success';
+                    title = 'Success!';
+                    break;
+                case 'error':
+                    icon = 'error';
+                    title = 'Error!';
+                    break;
+                case 'info':
+                    icon = 'info';
+                    title = 'Information';
+                    break;
+                default:
+                    icon = 'info';
+                    title = 'Info';
+                    break;
+            }
+
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                timer: 2500,
+                showConfirmButton: false,  // No need for a confirm button for toasts
+                position: 'top-end', // Position at the top right corner
+                toast: true, // Make it behave like a toast
+                timerProgressBar: true, // Show progress bar as the timer runs out
+            });
+        }
+
+        function clearInputs() {
+            courseNameInput.value = '';
+            courseAcronymInput.value = '';
+            document.getElementById('majorName').value = '';
+            document.getElementById('noMajorCheckbox').checked = false;
+
+            const majorInputsContainer = document.getElementById('majorInputsContainer');
+            const majorInputs = majorInputsContainer.querySelectorAll('input[type="text"]:not(#majorName)');
+            majorInputs.forEach(input => input.remove());
+
+            document.getElementById('addMajorButton').disabled = false;
+            document.getElementById('majorName').disabled = false;
+        }
+
+        document.querySelector('.add-category-button').addEventListener('click', function () {
+            document.querySelector('.add-category-modal').style.display = 'flex';
+        });
+
+        document.getElementById('cancelCategoryButton').addEventListener('click', function () {
+            clearInputs();
+            document.querySelector('.add-category-modal').style.display = 'none';
+        });
+
+        document.getElementById('addMajorButton').addEventListener('click', function () {
+            const majorInputsContainer = document.getElementById('majorInputsContainer');
+            const newMajorInput = document.createElement('input');
+            newMajorInput.setAttribute('type', 'text');
+            newMajorInput.setAttribute('placeholder', 'Major Name');
+            newMajorInput.setAttribute('required', true);
+            newMajorInput.classList.add('majorName');
+            majorInputsContainer.insertBefore(newMajorInput, this);
+        });
+
+        document.getElementById('noMajorCheckbox').addEventListener('change', function () {
+            const isChecked = this.checked;
+            const majorInput = document.getElementById('majorName');
+            const addMajorButton = document.getElementById('addMajorButton');
+            const majorInputsContainer = document.getElementById('majorInputsContainer');
+
+            if (isChecked) {
+                majorInput.disabled = true;
+                addMajorButton.disabled = true;
+
+                const dynamicMajorInputs = majorInputsContainer.querySelectorAll('input[type="text"]:not(#majorName)');
+                dynamicMajorInputs.forEach(input => input.remove());
+            } else {
+                majorInput.disabled = false;
+                addMajorButton.disabled = false;
+            }
+        });
+
+        document.getElementById('submitCategoryButton').addEventListener('click', function () {
+            const courseName = courseNameInput.value.trim();
+            const courseAcronym = courseAcronymInput.value.trim();
+            const noMajorCheckbox = document.getElementById('noMajorCheckbox').checked;
+            const firstMajorName = document.getElementById('majorName').value.trim();
+            const dynamicMajorInputs = document.querySelectorAll('.majorName');
+            let majorNames = [];
+
+            if (!noMajorCheckbox) {
+                majorNames = [firstMajorName, ...Array.from(dynamicMajorInputs).map(input => input.value.trim())].filter(major => major !== '');
+            }
+
+            if (!courseName || !courseAcronym) {
+                displayMessage('Please fill out all fields.', 'info');
+                return;
+            }
+
+            onValue(categoriesRef, (snapshot) => {
+                const existingCategories = snapshot.val() || {};
+                let categoryExists = false;
+
+                for (const key in existingCategories) {
+                    const category = existingCategories[key];
+                    if (category.courseName === courseName && category.courseAcronym === courseAcronym) {
+                        displayMessage('Course name and acronym already exists.', 'error');
+                        categoryExists = true;
+                        break;
+                    } else if (category.courseName === courseName) {
+                        displayMessage('Course name already exists.', 'error');
+                        categoryExists = true;
+                        break;
+                    } else if (category.courseAcronym === courseAcronym) {
+                        displayMessage('Course acronym already exists.', 'error');
+                        categoryExists = true;
+                        break;
+                    } else if (category.majors && majorNames.length && category.majors.some(major => majorNames.includes(major))) {
+                        displayMessage('One or more majors already exist.', 'error');
+                        categoryExists = true;
+                        break;
+                    }
+                }
+
+                if (!categoryExists) {
+                    const newCategoryRef = push(categoriesRef);
+                    const categoryId = newCategoryRef.key;
+
+                    const data = {
+                        courseName: courseName,
+                        courseAcronym: courseAcronym,
+                        noMajor: noMajorCheckbox
+                    };
+
+                    if (!noMajorCheckbox) {
+                        data.majors = majorNames.length > 0 ? majorNames : ['temp_major'];
+                    }
+
+                    set(ref(db, `Categories/${categoryId}`), data).then(() => {
+                        clearInputs();
+                        displayMessage('Category successfully added.', 'success');
+                        document.querySelector('.add-category-modal').style.display = 'none';
+                    }).catch((error) => {
+                        displayMessage(`Error saving category: ${error.message}`, 'error');
+                    });
+                }
+            }, {
+                onlyOnce: true
+            });
+        });
+
+        let currentCategoryId;
+        let categories = {};
+
+        onValue(categoriesRef, (snapshot) => {
+            categories = snapshot.val() || {};
+            const categoriesAccordion = document.querySelector('.categories-accordion');
+            categoriesAccordion.innerHTML = '';
+
+            const categoriesArray = Object.entries(categories);
+
+            categoriesArray.sort((a, b) => {
+                const courseNameA = a[1].courseName.toLowerCase();
+                const courseNameB = b[1].courseName.toLowerCase();
+                if (courseNameA < courseNameB) return -1;
+                if (courseNameA > courseNameB) return 1;
+                return 0;
+            });
+
+            categoriesArray.forEach(([key, category]) => {
+                if (!category.courseName || !category.courseAcronym) {
+                    return; // Skip incomplete categories
+                }
+
+                const courseAccordion = document.createElement('div');
+                courseAccordion.classList.add('course-accordion');
+                courseAccordion.setAttribute('data-category-id', key);
+
+                const courseHeader = document.createElement('div');
+                courseHeader.classList.add('course-header');
+
+                const arrowSpan = document.createElement('span');
+                arrowSpan.classList.add('arrow');
+                arrowSpan.textContent = '▼';
+
+                const separatorSpan = document.createElement('span');
+                separatorSpan.classList.add('separator');
+
+                const icon = document.createElement('img');
+                icon.src = '/images/ellipsis.png';
+                icon.alt = 'More options';
+                icon.classList.add('accordion-icon');
+
+                courseHeader.innerHTML = `${category.courseName} (${category.courseAcronym}) `;
+                courseHeader.appendChild(arrowSpan);
+                courseHeader.appendChild(separatorSpan);
+                courseHeader.appendChild(icon);
+
+                courseAccordion.appendChild(courseHeader);
+
+                const majorsContainer = document.createElement('div');
+                majorsContainer.classList.add('majors-container');
+                majorsContainer.setAttribute('data-category-id', key);
+                majorsContainer.style.display = 'none';
+
+                if (category.noMajor) {
+                    const noMajorsMessage = document.createElement('div');
+                    noMajorsMessage.classList.add('major-header', 'no-majors-message');
+                    noMajorsMessage.textContent = 'No Specific Majors';
+                    majorsContainer.appendChild(noMajorsMessage);
+                } else if (!category.majors || category.majors.length === 0) {
+                    const noMajorsMessage = document.createElement('div');
+                    noMajorsMessage.classList.add('major-header', 'no-majors-message');
+                    noMajorsMessage.textContent = 'No Majors Added';
+                    majorsContainer.appendChild(noMajorsMessage);
+                } else {
+                    const filteredMajors = category.majors.filter(major => major !== 'temp_major');
+
+                    if (filteredMajors.length === 0) {
+                        const noMajorsMessage = document.createElement('div');
+                        noMajorsMessage.classList.add('major-header', 'no-majors-message');
+                        noMajorsMessage.textContent = 'No Majors Added';
+                        majorsContainer.appendChild(noMajorsMessage);
+                    } else {
+                        filteredMajors.forEach(major => {
+                            const majorAccordion = document.createElement('div');
+                            majorAccordion.classList.add('major-accordion');
+
+                            const majorHeader = document.createElement('div');
+                            majorHeader.classList.add('major-header');
+                            majorHeader.textContent = major;
+
+                            const majorIcon = document.createElement('img');
+                            majorIcon.src = '/images/ellipsis.png';
+                            majorIcon.alt = 'More options';
+                            majorIcon.classList.add('major-accordion-icon');
+
+                            majorHeader.appendChild(majorIcon);
+                            majorAccordion.appendChild(majorHeader);
+                            majorsContainer.appendChild(majorAccordion);
+                        });
+                    }
+                }
+
+                courseAccordion.appendChild(majorsContainer);
+                categoriesAccordion.appendChild(courseAccordion);
+            });
+
+            attachAccordionEventListeners(categories);
+        });
+
+        const searchBar = document.getElementById('search-bar');
+        const clearIcon = document.getElementById('clear-icon');
+        const categoriesAccordion = document.querySelector('.categories-accordion');
+        const searchButton = document.getElementById('searchButton');
+
+        searchBar.addEventListener('input', () => {
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        });
+
+        clearIcon.addEventListener('click', () => {
+            searchBar.value = '';
+            clearIcon.style.display = 'none';
+            searchBar.focus();
+            loadCategories(); // Reset to initial categories list
+        });
+
+        searchButton.addEventListener('click', updateCategoryDisplay);
+        searchBar.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                updateCategoryDisplay();
+            }
+        });
+
+        function updateCategoryDisplay() {
+            const searchTerm = searchBar.value.trim().toLowerCase();
+
+            if (!searchTerm) {
+                loadCategories(); // Reset if no search term
+                return;
+            }
+
+            filterCategories(searchTerm);
+        }
+
+        function filterCategories(searchTerm) {
+            const filteredCategories = Object.values(categories).filter(category => {
+                const courseNameMatch = category.courseName.toLowerCase().includes(searchTerm);
+                const courseAcronymMatch = category.courseAcronym.toLowerCase().includes(searchTerm);
+
+                return courseNameMatch || courseAcronymMatch;
+            });
+
+            displayCategories(filteredCategories);
+        }
+
+        function loadCategories() {
+            onValue(categoriesRef, (snapshot) => {
+                categories = snapshot.val() || {};
+                displayCategories(Object.values(categories));
+            });
+        }
+
+        function displayCategories(categoriesList) {
+            categoriesAccordion.innerHTML = ''; // Clear existing categories
+            categoriesList.sort((a, b) => a.courseName.localeCompare(b.courseName)); // Sort by courseName
+
+            categoriesList.forEach(category => {
+                const courseAccordion = document.createElement('div');
+                courseAccordion.classList.add('course-accordion');
+
+                const courseHeader = document.createElement('div');
+                courseHeader.classList.add('course-header');
+
+                const arrowSpan = document.createElement('span');
+                arrowSpan.classList.add('arrow');
+                arrowSpan.textContent = '▼';
+
+                const separatorSpan = document.createElement('span');
+                separatorSpan.classList.add('separator');
+
+                const icon = document.createElement('img');
+                icon.src = '/images/ellipsis.png';
+                icon.alt = 'More options';
+                icon.classList.add('accordion-icon');
+
+                courseHeader.innerHTML = `${category.courseName} (${category.courseAcronym}) `;
+                courseHeader.appendChild(arrowSpan);
+                courseHeader.appendChild(separatorSpan);
+                courseHeader.appendChild(icon);
+
+                courseAccordion.appendChild(courseHeader);
+
+                const majorsContainer = document.createElement('div');
+                majorsContainer.classList.add('majors-container');
+                majorsContainer.style.display = 'none';
+
+                if (category.noMajor) {
+                    const noMajorsMessage = document.createElement('div');
+                    noMajorsMessage.classList.add('major-header', 'no-majors-message');
+                    noMajorsMessage.textContent = 'No Specific Majors';
+                    majorsContainer.appendChild(noMajorsMessage);
+                } else {
+                    const filteredMajors = category.majors.filter(major => major !== 'temp_major');
+                    filteredMajors.forEach(major => {
+                        const majorAccordion = document.createElement('div');
+                        majorAccordion.classList.add('major-accordion');
+                        majorAccordion.innerHTML = `<div class="major-header">${major}</div>`;
+                        majorsContainer.appendChild(majorAccordion);
+                    });
+                }
+
+                courseAccordion.appendChild(majorsContainer);
+                categoriesAccordion.appendChild(courseAccordion);
+            });
+
+            attachAccordionEventListeners();
+        }
+
+        function attachAccordionEventListeners() {
+            const courseHeaders = document.querySelectorAll('.course-header');
+
+            courseHeaders.forEach((header, index) => {
+                const arrow = header.querySelector('.arrow');
+                const icon = header.querySelector('.accordion-icon');
+                const majorsContainer = header.nextElementSibling;
+
+                const categoryKey = Object.keys(categories)[index];
+
+                arrow.addEventListener('click', function () {
+                    if (majorsContainer) {
+                        majorsContainer.style.display = majorsContainer.style.display === 'none' ? 'block' : 'none';
+                        header.parentElement.classList.toggle('expanded');
+                    }
+                });
+
+                icon.addEventListener('click', function (e) {
+                    e.stopPropagation(); // Prevent event bubbling
+
+                    const categoryKey = header.parentElement.getAttribute('data-category-id');
+                    currentCategoryId = categoryKey;
+
+                    const optionsBox = document.querySelector('.options-box');
+
+                    if (optionsBox.style.display === 'block') {
+                        optionsBox.style.display = 'none';
+                    } else {
+                        optionsBox.style.display = 'block';
+
+                        const rect = icon.getBoundingClientRect();
+                        const iconHeight = rect.height;
+
+                        optionsBox.style.top = `${rect.top + window.scrollY + (iconHeight / 2) - (optionsBox.offsetHeight / 2)}px`;
+                        optionsBox.style.left = `${rect.left + window.scrollX - optionsBox.offsetWidth - 10}px`;
+
+                        const noMajorValue = categories[categoryKey]?.noMajor; // Retrieve the value of noMajor
+
+                        optionsBox.innerHTML = `
+                    <ul>
+                        <li class="edit-option">Edit</li>
+                        ${noMajorValue === false ? '<li class="add-major-option">Add Major</li>' : ''}
+                    </ul>
+                `;
+
+                        document.addEventListener('click', handleClickOutside);
+
+                    }
+
+                    const editOption = optionsBox.querySelector('.edit-option');
+                    if (editOption) {
+                        editOption.onclick = function () {
+                            optionsBox.style.display = 'none';
+                            openEditCategoryModal(categoryKey);
+                        };
+                    }
+
+                    const addMajorOption = optionsBox.querySelector('.add-major-option');
+                    if (addMajorOption) {
+                        addMajorOption.onclick = function () {
+                            optionsBox.style.display = 'none';
+                            document.querySelector('.add-major-modal').style.display = 'flex';
+                        };
+                    }
+                });
+
+                function handleClickOutside(e) {
+                    const optionsBox = document.querySelector('.options-box');
+                    const isClickInsideBox = optionsBox.contains(e.target);
+                    const isClickOnIcon = e.target === icon;
+
+                    if (!isClickInsideBox && !isClickOnIcon) {
+                        optionsBox.style.display = 'none';
+                        document.removeEventListener('click', handleClickOutside);
+                    }
+                }
+            });
+        }
+
+        function openEditCategoryModal(categoryKey) { // Use categoryKey to fetch the correct category
+            currentCategoryId = categoryKey; // Store the UID in currentCategoryId for later use
+            const courseNameInput = document.getElementById('editCourseName');
+            const courseAcronymInput = document.getElementById('editCourseAcronym');
+
+            const categoryRef = ref(db, `Categories/${categoryKey}`);
+            onValue(categoryRef, (snapshot) => {
+                const categoryData = snapshot.val();
+                if (categoryData) {
+                    courseNameInput.value = categoryData.courseName; // Populate the input with the course name
+                    courseAcronymInput.value = categoryData.courseAcronym; // Populate the input with the course acronym
+                    document.querySelector('.edit-category-modal').style.display = 'flex';
+                }
+            }, {
+                onlyOnce: true // We only need to fetch the data once for editing
+            });
+        }
+
+        document.getElementById('saveEditCategoryButton').addEventListener('click', function () {
+            const updatedCourseName = document.getElementById('editCourseName').value.trim();
+            const updatedCourseAcronym = document.getElementById('editCourseAcronym').value.trim();
+
+            if (!updatedCourseName || !updatedCourseAcronym) {
+                displayMessage('Please fill out all fields.', 'info');
+                return;
+            }
+
+            const categoryRef = ref(db, `Categories/${currentCategoryId}`);
+
+            get(categoryRef).then((snapshot) => {
+                const categoryData = snapshot.val();
+
+                if (!categoryData) {
+                    displayMessage('Category not found.', 'info');
+                    return;
+                }
+
+                const currentCourseName = categoryData.courseName;
+                const currentCourseAcronym = categoryData.courseAcronym;
+
+                if (updatedCourseName === currentCourseName && updatedCourseAcronym === currentCourseAcronym) {
+                    displayMessage('No changes were made to the course name or acronym.', 'info');
+                    return;
+                }
+
+                const majors = categoryData.majors || null;
+
+                const updatedCategoryData = {
+                    courseName: updatedCourseName,
+                    courseAcronym: updatedCourseAcronym
+                };
+
+                if (majors) {
+                    updatedCategoryData.majors = majors;
+                }
+
+                set(categoryRef, updatedCategoryData).then(() => {
+                    displayMessage('Category successfully updated.', 'success');
+                    document.querySelector('.edit-category-modal').style.display = 'none';
+                }).catch((error) => {
+                    displayMessage(`Error updating category: ${error.message}`, 'error');
+                });
+
+            }).catch((error) => {
+                displayMessage(`Error fetching category data: ${error.message}`, 'error');
+            });
+        });
+
+        document.getElementById('cancelEditCategoryButton').addEventListener('click', function () {
+            document.querySelector('.edit-category-modal').style.display = 'none';
+        });
+
+        document.getElementById('removeEditCategoryButton').addEventListener('click', function () {
+            const courseName = document.getElementById('editCourseName').value.trim();
+            const courseAcronym = document.getElementById('editCourseAcronym').value.trim();
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            confirmationMessage.innerHTML = `Are you sure you want to remove "<strong>${courseName} (${courseAcronym})</strong>" ?`;
+
+            document.getElementById('confirmationPromptModal').style.display = 'flex'; // Show confirmation modal
+        });
+
+        document.getElementById('confirmRemoveCategoryButton').addEventListener('click', function () {
+            const categoryRef = ref(db, `Categories/${currentCategoryId}`);
+
+            remove(categoryRef).then(() => {
+                displayMessage('Course removed successfully', 'success');
+                document.getElementById('confirmationPromptModal').style.display = 'none'; // Hide confirmation modal
+                document.querySelector('.edit-category-modal').style.display = 'none'; // Hide category modal
+            }).catch((error) => {
+                displayMessage(`Error removing course: ${error.message}`, 'error');
+            });
+        });
+
+        document.getElementById('cancelRemoveCategoryButton').addEventListener('click', function () {
+            document.getElementById('confirmationPromptModal').style.display = 'none'; // Close the confirmation modal
+            document.querySelector('.edit-category-modal').style.display = 'flex'; // Reopen category modal
+        });
+
+        document.getElementById('saveMajorButton').addEventListener('click', function () {
+            const newMajorName = document.getElementById('newMajorName').value.trim();
+
+            if (!newMajorName) {
+                displayMessage('Please enter a valid major name.', 'info');
+                return;
+            }
+
+            const categoryRef = ref(db, `Categories/${currentCategoryId}`);
+
+            onValue(categoryRef, (snapshot) => {
+                const categoryData = snapshot.val();
+
+                if (categoryData) {
+                    let currentMajors = categoryData.majors || [];
+
+                    if (!currentMajors.includes('temp_major')) {
+                        currentMajors.push('temp_major');
+                    }
+
+                    if (!currentMajors.includes(newMajorName)) {
+                        currentMajors.push(newMajorName);
+                    } else {
+                        displayMessage('This major already exists.', 'info');
+                        return;
+                    }
+
+                    set(categoryRef, {
+                        ...categoryData,  // Spread the existing category data
+                        majors: currentMajors  // Update the majors array
+                    }).then(() => {
+                        displayMessage('Major successfully added.', 'success');
+                        document.querySelector('.add-major-modal').style.display = 'none';
+                    }).catch((error) => {
+                        displayMessage(`Error adding major: ${error.message}`, 'error');
+                    });
+                }
+            }, {
+                onlyOnce: true  // We only need to fetch the data once for updating
+            });
+        });
+
+        document.getElementById('cancelMajorButton').addEventListener('click', function () {
+            document.querySelector('.add-major-modal').style.display = 'none';
+            document.getElementById('newMajorName').value = '';
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target.classList.contains('major-accordion-icon')) {
+                const majorHeader = e.target.closest('.major-header');
+                const majorName = majorHeader.firstChild.textContent.trim();
+
+                const modal = document.getElementById('renameMajorModal');
+                const input = document.getElementById('majorNameInput');
+                input.value = majorName;
+                modal.style.display = 'flex';
+                modal.setAttribute('data-major', majorName);
+
+                document.getElementById('saveMajorChanges').onclick = async function () {
+                    const updatedMajorName = input.value;
+                    const oldMajorName = modal.getAttribute('data-major');
+
+                    if (updatedMajorName === oldMajorName) {
+                        displayMessage('No changes made to the major name.', 'info');
+                        return;
+                    }
+
+                    try {
+                        const courseAccordion = majorHeader.closest('.course-accordion');
+                        const courseId = courseAccordion ? courseAccordion.getAttribute('data-category-id') : null;
+
+                        if (!courseId) {
+                            displayMessage("Course ID not found!", "info");
+                            return;
+                        }
+
+                        const courseRef = ref(db, `Categories/${courseId}/majors`);
+                        const snapshot = await get(courseRef);
+
+                        if (snapshot.exists()) {
+                            let majors = snapshot.val();
+
+                            const majorIndex = majors.indexOf(oldMajorName);
+
+                            if (majorIndex !== -1) {
+                                majors[majorIndex] = updatedMajorName;
+
+                                await set(courseRef, majors);
+
+                                displayMessage('Major updated successfully!', 'success');
+                                modal.style.display = 'none';
+                            } else {
+                                displayMessage('Old major does not exist!', 'error');
+                            }
+                        } else {
+                            displayMessage('Course does not exist!', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error updating major:', error);
+                        displayMessage('Failed to update major. See console for details.', 'error');
+                    }
+                };
+
+                document.getElementById('cancelMajorEdit').onclick = function () {
+                    modal.style.display = 'none';
+                };
+
+                document.getElementById('removeMajor').onclick = function () {
+                    const majorName = modal.getAttribute('data-major');  // The major to remove
+                    const majorConfirmationMessage = document.getElementById('majorConfirmationMessage');
+                    majorConfirmationMessage.innerHTML = `Are you sure you want to remove "<strong>${majorName}</strong>" ?`;
+
+                    document.getElementById('confirmationMajorModal').style.display = 'flex';  // Show major confirmation modal
+                };
+
+                document.getElementById('confirmRemoveMajorButton').onclick = async function () {
+                    try {
+                        const categoriesRef = ref(db, `Categories`);
+                        const snapshot = await get(categoriesRef);
+
+                        if (snapshot.exists()) {
+                            const categories = snapshot.val();
+                            let courseId = null;
+                            let majors = null;
+
+                            for (const key in categories) {
+                                const category = categories[key];
+                                if (category.majors && category.majors.includes(majorName)) {
+                                    courseId = key;  // Save courseId
+                                    majors = category.majors;
+                                    break;
+                                }
+                            }
+
+                            if (courseId && majors) {
+                                const majorIndex = majors.indexOf(majorName);
+
+                                if (majorIndex !== -1) {
+                                    majors.splice(majorIndex, 1);  // Remove the major
+
+                                    const categoryRef = ref(db, `Categories/${courseId}`);
+                                    await set(categoryRef, {
+                                        ...categories[courseId],
+                                        majors: majors.length > 0 ? majors : []
+                                    });
+
+                                    displayMessage(`Major '${majorName}' deleted successfully!`, "success");
+                                    modal.style.display = 'none';
+                                    document.getElementById('confirmationMajorModal').style.display = 'none';
+                                } else {
+                                    displayMessage(`Major '${majorName}' does not exist!`, "info");
+                                }
+                            } else {
+                                displayMessage(`No course found with major '${majorName}'`, "info");
+                            }
+                        } else {
+                            displayMessage('No categories found!', 'info');
+                        }
+                    } catch (error) {
+                        console.error('Error removing major:', error);
+                        displayMessage(`Failed to remove major '${majorName}'. See console for details.`, "error");
+                    }
+                };
+
+                document.getElementById('cancelRemoveMajorButton').onclick = function () {
+                    document.getElementById('confirmationMajorModal').style.display = 'none';  // Close the major confirmation modal
+                };
+            }
+        });
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('rename-major-modal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+
+</html>

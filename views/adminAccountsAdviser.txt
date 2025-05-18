@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="css/adminAccountsAdviser.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="categories">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="main-header">
+                <button class="adviser-button" id="adviserButton">Create Account</button>
+            </div>
+            <table class="teacher-table" id="adviser-table">
+                <thead>
+                    <tr>
+                        <th class="teacher-th-centered">Employee ID</th>
+                        <th class="teacher-th-centered">Name</th>
+                        <th class="teacher-th-centered">Email</th>
+                        <th class="teacher-th-centered">Date Joined</th>
+                        <th class="teacher-th-centered">Courses & Sections</th>
+                        <th class="teacher-th-centered">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="tbody1" id="tbody1"></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="adviserModal" class="adviser-modal">
+        <div class="adviser-content">
+            <h2>Research Teacher Account</h2>
+            <div class="form-group">
+                <label for="adviserName">Name</label>
+                <input type="text" id="adviserName" required autocomplete="off" />
+            </div>
+            <div class="form-group">
+                <label for="adviserEmail">Email</label>
+                <input type="email" id="adviserEmail" required autocomplete="off" />
+            </div>
+            <div class="form-group">
+                <label for="adviserPassword">Password</label>
+                <input type="password" id="adviserPassword" required />
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required />
+            </div>
+            <label>Course/Section</label>
+            <div class="custom-dropdown">
+                <button class="dropbtn">Select Courses and Sections</button>
+                <div class="dropdown-content">
+                    <h3>BSIT</h3>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="section" value="BSIT 3A"> 3A</label>
+                        <label><input type="checkbox" name="section" value="BSIT 3B"> 3B</label>
+                        <label><input type="checkbox" name="section" value="BSIT 3C"> 3C</label>
+                        <label><input type="checkbox" name="section" value="BSIT 3D"> 3D</label>
+                        <label><input type="checkbox" name="section" value="BSIT 3E"> 3E</label>
+                        <label><input type="checkbox" name="section" value="BSIT 4A"> 4A</label>
+                        <label><input type="checkbox" name="section" value="BSIT 4B"> 4B</label>
+                        <label><input type="checkbox" name="section" value="BSIT 4C"> 4C</label>
+                        <label><input type="checkbox" name="section" value="BSIT 4D"> 4D</label>
+                        <label><input type="checkbox" name="section" value="BSIT 4E"> 4E</label>
+                    </div>
+                    <h3>BSDS</h3>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="section" value="BSDS 3A"> 3A</label>
+                        <label><input type="checkbox" name="section" value="BSDS 3B"> 3B</label>
+                        <label><input type="checkbox" name="section" value="BSDS 3C"> 3C</label>
+                        <label><input type="checkbox" name="section" value="BSDS 3D"> 3D</label>
+                        <label><input type="checkbox" name="section" value="BSDS 3E"> 3E</label>
+                        <label><input type="checkbox" name="section" value="BSDS 4A"> 4A</label>
+                        <label><input type="checkbox" name="section" value="BSDS 4B"> 4B</label>
+                        <label><input type="checkbox" name="section" value="BSDS 4C"> 4C</label>
+                        <label><input type="checkbox" name="section" value="BSDS 4D"> 4D</label>
+                        <label><input type="checkbox" name="section" value="BSDS 4E"> 4E</label>
+                    </div>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="button-save" id="saveAdviserButton">Save</button>
+                <button class="button-cancel" id="cancelAdviserButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="edit-adviser-modal">
+        <div class="edit-modal-content">
+            <h2>Edit Research Teacher</h2>
+            <form id="edit-adviser-form">
+                <div class="edit-form-group">
+                    <label for="editAdviserName">Name:</label>
+                    <input type="text" id="editAdviserName" name="name" required>
+                </div>
+                <div class="edit-form-group">
+                    <label for="editAdviserEmail">Email:</label>
+                    <input type="email" id="editAdviserEmail" name="email" disabled>
+                </div>
+                <label>Course/Section</label>
+                <div class="edit-custom-dropdown">
+                    <button type="button" class="edit-dropbtn">Select Courses and Sections</button>
+                    <div class="edit-dropdown-content">
+                        <h3>BSIT</h3>
+                        <div class="edit-checkbox-group">
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 3A"> 3A</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 3B"> 3B</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 3C"> 3C</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 3D"> 3D</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 3E"> 3E</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 4A"> 4A</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 4B"> 4B</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 4C"> 4C</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 4D"> 4D</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSIT 4E"> 4E</label>
+                        </div>
+                        <h3>BSDS</h3>
+                        <div class="edit-checkbox-group">
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 3A"> 3A</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 3B"> 3B</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 3C"> 3C</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 3D"> 3D</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 3E"> 3E</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 4A"> 4A</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 4B"> 4B</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 4C"> 4C</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 4D"> 4D</label>
+                            <label><input type="checkbox" name="coursesSections" value="BSDS 4E"> 4E</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="edit-button-group">
+                    <button type="submit" class="edit-button-save" id="saveChangesBtn">Save Changes</button>
+                    <button type="button" class="edit-button-cancel" id="closeButton">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="js/adminLogout.js"></script>
+    <script src="js/adminAccountAdviser.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, get, set, ref, child, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+        const storage = getStorage();
+
+        const adviserButton = document.getElementById('adviserButton');
+        const adviserModal = document.getElementById('adviserModal');
+        const saveAdviserButton = document.getElementById('saveAdviserButton');
+        const cancelAdviserButton = document.getElementById('cancelAdviserButton');
+
+        adviserButton.addEventListener('click', openAdviserModal);
+
+        function openAdviserModal() {
+            adviserModal.style.display = 'block';
+        }
+
+        function closeAdviserModal() {
+            adviserModal.style.display = 'none';
+        }
+
+        function clearAdviserInputs() {
+            document.getElementById('adviserName').value = '';
+            document.getElementById('adviserEmail').value = '';
+            document.getElementById('adviserPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+
+            const courseSectionCheckboxes = document.querySelectorAll('input[name="section"]');
+            courseSectionCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        function generateEmployeeID() {
+            const randomPart = Math.floor(Math.random() * 100000);
+            const timestampPart = Date.now().toString().slice(-5);
+            return `EMP-${randomPart}-${timestampPart}`;
+        }
+
+        function saveAdviser() {
+            const adviserName = document.getElementById('adviserName').value.trim();
+            const adviserEmail = document.getElementById('adviserEmail').value.trim();
+            const adviserPassword = document.getElementById('adviserPassword').value.trim();
+            const adviserConfirmPassword = document.getElementById('confirmPassword').value.trim();
+            const selectedCoursesSections = Array.from(document.querySelectorAll('input[name="section"]:checked'));
+
+            const coursesSections = selectedCoursesSections.reduce((acc, checkbox) => {
+                const [course, section] = checkbox.value.split(' ');
+                if (!acc[course]) {
+                    acc[course] = {};
+                }
+                acc[course][section] = section;
+                return acc;
+            }, {});
+
+            if (adviserName === '' || adviserEmail === '' || adviserPassword === '' || adviserConfirmPassword === '' || selectedCoursesSections.length === 0) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            if (adviserPassword !== adviserConfirmPassword) {
+                alert('Passwords do not match. Please try again.');
+                return;
+            }
+
+            const employeeID = generateEmployeeID();
+            const timestamp = new Date().toISOString();
+
+            const storage = getStorage();
+            const storageRefPath = storageRef(storage, 'ProfileImages/' + employeeID + '.png');  // Path to save the image in Firebase Storage
+
+            // Load the image as a Blob
+            fetch('images/administration.png')
+                .then(response => response.blob())
+                .then(blob => {
+                    // Upload the image to Firebase Storage
+                    uploadBytes(storageRefPath, blob)
+                        .then(snapshot => {
+                            // Get the download URL of the uploaded image
+                            return getDownloadURL(snapshot.ref);
+                        })
+                        .then(downloadURL => {
+                            // Save adviser data, including the profile image URL
+                            const adviserData = {
+                                employeeID: employeeID,
+                                name: adviserName,
+                                email: adviserEmail,
+                                password: adviserPassword,
+                                profileImage: downloadURL,  // Use the uploaded image's URL
+                                coursesSections: coursesSections,
+                                timestamp: timestamp,
+                                role: 'researchTeacher'
+                            };
+
+                            // Create the adviser account in Firebase Authentication and save data to Realtime Database
+                            createUserWithEmailAndPassword(auth, adviserEmail, adviserPassword)
+                                .then((userCredential) => {
+                                    const { user } = userCredential;
+                                    const uid = user.uid;
+
+                                    const newAdviserRef = ref(db, 'Research Teacher/' + uid); // Changed to "Research Teacher"
+                                    set(newAdviserRef, adviserData)
+                                        .then(() => {
+                                            alert('Research Teacher account created successfully.');
+                                            closeAdviserModal();
+                                            clearAdviserInputs();
+                                        })
+                                        .catch((error) => {
+                                            alert('Error saving research teacher data: ' + error.message);
+                                        });
+                                })
+                                .catch((error) => {
+                                    alert('Error creating research teacher account: ' + error.message);
+                                });
+                        })
+                        .catch(error => {
+                            alert('Error uploading image: ' + error.message);
+                        });
+                })
+                .catch(error => {
+                    alert('Error loading image: ' + error.message);
+                });
+        }
+
+        function createTableHeader() {
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const headers = ["Employee ID", "Name", "Email", "Date Joined", "Courses & Sections", "Actions"];
+
+            headers.forEach(headerText => {
+                const th = document.createElement("th");
+                th.className = "teacher-th-centered";
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+
+            thead.appendChild(headerRow);
+            return thead;
+        }
+
+        function initializeTable() {
+            const teacherTable = document.getElementById('teacher-table');
+            teacherTable.appendChild(createTableHeader());
+            tbody1.innerHTML = ""; // Clear existing tbody content if necessary
+        }
+
+        function AddAdviserToTable(employeeID, name, email, formattedTimestamp, uid, coursesSections) {
+            const trow = document.createElement("tr");
+
+            const coursesDisplay = Object.entries(coursesSections)
+                .flatMap(([course, sections]) => {
+                    return Object.keys(sections).map(section => `${course} ${section}`);
+                })
+                .join(', '); // Joining courses and sections into a string for display
+
+            // Filling row data with the adviser details and adding the edit icon for the actions column
+            trow.innerHTML = `
+        <td>${employeeID}</td>
+        <td>${name}</td>
+        <td>${email}</td>
+        <td>${formattedTimestamp}</td>
+        <td>${coursesDisplay}</td>
+        <td>
+            <img src="images/edit.png" alt="Edit" class="edit-icon" style="cursor: pointer;" data-uid="${uid}">
+        </td>
+    `;
+
+            // Append the created row to the table body
+            const tbody = document.getElementById('tbody1');
+            tbody.appendChild(trow);
+
+            // Adding an event listener for the edit icon to open the edit modal
+            trow.querySelector('.edit-icon').addEventListener('click', () => openEditModal(uid));
+        }
+
+
+        function fetchTeachers() {
+            const dbRef = ref(db, 'Research Teacher/');
+            onValue(dbRef, (snapshot) => {
+                allTeachers = [];
+
+                snapshot.forEach(childSnapshot => {
+                    const teacher = childSnapshot.val();
+                    if (teacher.employeeID && teacher.name && teacher.email && teacher.formattedTimestamp && teacher.uid && teacher.coursesSections) {
+                        allTeachers.push(teacher);
+                    }
+                });
+            });
+        }
+
+        saveAdviserButton.addEventListener('click', saveAdviser);
+        cancelAdviserButton.addEventListener('click', () => {
+            closeAdviserModal();
+            clearAdviserInputs();
+        });
+
+        // Load advisers for display in table when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAdvisers();
+        });
+
+        // Fetch and load Research Teachers
+        function loadAdvisers() {
+            const advisersRef = ref(db, 'Research Teacher/');
+            onValue(advisersRef, (snapshot) => {
+                const tbody = document.getElementById('tbody1');
+                tbody.innerHTML = '';  // Clear existing rows
+
+                snapshot.forEach((childSnapshot) => {
+                    const adviser = childSnapshot.val();
+                    const formattedTimestamp = new Date(adviser.timestamp).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+
+                    AddAdviserToTable(adviser.employeeID, adviser.name, adviser.email, formattedTimestamp, childSnapshot.key, adviser.coursesSections);
+                });
+            });
+        }
+
+
+        const editAdviserModal = document.getElementById('edit-adviser-modal');
+        const saveChangesBtn = document.getElementById('saveChangesBtn');
+        const closeButton = document.getElementById('closeButton');
+
+        let isUpdating = false;
+
+        // Attach edit listener function
+        function attachEditListenerOnce() {
+            if (saveChangesBtn.getAttribute('data-listener') === 'true') return;
+
+            saveChangesBtn.addEventListener('click', async function (event) {
+                event.preventDefault(); // Prevent form submission
+
+                // Early exit if already updating
+                if (isUpdating) return;
+
+                const updatedName = document.getElementById('editAdviserName').value.trim();
+                const selectedSections = Array.from(document.querySelectorAll('input[name="coursesSections"]:checked')).map(cb => cb.value);
+
+                if (!updatedName) {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+
+                const uid = editAdviserModal.getAttribute('data-uid');
+
+                try {
+                    isUpdating = true; // Set updating state
+                    const snapshot = await get(ref(db, `Admins/${uid}`));
+                    const existingAdviser = snapshot.val();
+                    const existingCoursesSections = existingAdviser.coursesSections || {};
+
+                    const updatedAdviserData = {
+                        name: updatedName,
+                        coursesSections: {}
+                    };
+
+                    selectedSections.forEach(coursesSections => {
+                        const [course, sectionNum] = coursesSections.split(' ');
+                        if (!updatedAdviserData.coursesSections[course]) {
+                            updatedAdviserData.coursesSections[course] = {};
+                        }
+                        updatedAdviserData.coursesSections[course][sectionNum] = sectionNum;
+                    });
+
+                    for (const course in existingCoursesSections) {
+                        for (const section in existingCoursesSections[course]) {
+                            if (!selectedSections.includes(`${course} ${section}`)) {
+                                delete updatedAdviserData.coursesSections[course][section];
+                            }
+                        }
+                    }
+
+                    await update(ref(db, `Admins/${uid}`), updatedAdviserData);
+                    alert('Adviser information updated successfully.');
+                    editAdviserModal.style.display = 'none'; // Close modal
+                    loadAdvisers(); // Refresh adviser list
+                } catch (error) {
+                    alert('Error updating adviser: ' + error.message);
+                } finally {
+                    isUpdating = false; // Reset flag after update
+                }
+            });
+
+            saveChangesBtn.setAttribute('data-listener', 'true'); // Mark that the listener is added
+        }
+
+        function openEditModal(uid) {
+            if (isUpdating) return;
+
+            get(ref(db, `Research Teacher/${uid}`)).then((snapshot) => {  // Changed to "Research Teacher"
+                const adviser = snapshot.val();
+                if (adviser) {
+                    document.getElementById('editAdviserName').value = adviser.name;
+                    document.getElementById('editAdviserEmail').value = adviser.email;
+
+                    document.querySelectorAll('input[name="coursesSections"]').forEach(checkbox => {
+                        checkbox.checked = false; // Clear all checkboxes initially
+                    });
+
+                    if (adviser.coursesSections) {
+                        for (const [course, sections] of Object.entries(adviser.coursesSections)) {
+                            for (const section in sections) {
+                                const checkbox = document.querySelector(`input[name="coursesSections"][value="${course} ${section}"]`);
+                                if (checkbox) {
+                                    checkbox.checked = true;
+                                }
+                            }
+                        }
+                    }
+
+                    editAdviserModal.setAttribute('data-uid', uid);
+                    attachEditListenerOnce();
+                    editAdviserModal.style.display = 'block';
+                }
+            });
+        }
+
+        closeButton.addEventListener('click', () => {
+            editAdviserModal.style.display = 'none';
+        });
+    </script>
+</body>
+
+</html>

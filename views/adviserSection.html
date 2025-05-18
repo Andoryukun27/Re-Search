@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/teacherLogoutModal.css">
+    <link rel="stylesheet" href="/css/adviserDashboard.css">
+    <link rel="stylesheet" href="/css/adviserSection.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="user-section">
+            <div class="message">
+                <div class="circle"></div>
+                <img src="/images/bell.png" class="icn" alt="notification">
+            </div>
+            <div class="dp">
+                <img class="dpicn" alt="dp">
+            </div>
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/homepage.png" class="nav-img" alt="homepage">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionStudManage">
+                        <img src="/images/student accounts.png" class="nav-img" alt="student management">
+                        <h3>Student Management</h3>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/section head.png" class="nav-img" alt="section">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="category">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/requests.png" class="nav-img" alt="request">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="main-header">
+                <div class="entries-dropdown">
+                    <label for="entriesPerPage">Select Section:</label>
+                    <select id="entriesPerPage"></select>
+                </div>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="search-bar" placeholder="Search...">
+                    <button class="search-button">Search</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="section-table" id="section-table">
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="notificationContainer" class="notification-container"></div>
+    <div id="viewModal" class="view-modal">
+        <div class="view-modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Research Details</h2>
+            <p id="modalContent"></p>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='adviserProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adviserProfile.js"></script>
+    <script rel="javascript" src="/js/adviserSection.js"></script>
+    <script type="module" rel="javascript" src="/js/adviserLogout.js"></script>
+    <script type="module" src="/js/notification.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, child, onValue } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+
+        const userUID = sessionStorage.getItem("userUID");
+        const entriesDropdown = document.getElementById("entriesPerPage");
+        const sectionTable = document.getElementById("section-table");
+        const booksRef = ref(db, `Books`);
+        const coursesRef = ref(db, `Courses/${userUID}`);
+        const accountsRef = ref(db, `accounts`);
+        const showAllOption = document.createElement("option");
+        const viewModal = document.getElementById("viewModal");
+        const closeButton = document.querySelector(".close-button");
+        const modalContent = document.getElementById("modalContent");
+
+        let allBooks = [];
+
+        const loadBooks = (selectedSection, searchTerm = "") => {
+            onValue(booksRef, (snapshot) => {
+                const books = snapshot.val();
+                if (books) {
+                    allBooks = [];
+                    const filteredBooks = [];
+                    const promises = [];
+
+                    for (const bookId in books) {
+                        const book = books[bookId];
+
+                        if (book.adviserUID === userUID) {
+                            const studentUID = book.uid;
+                            const studentRef = child(accountsRef, studentUID);
+
+                            const promise = new Promise((resolve) => {
+                                onValue(studentRef, (studentSnapshot) => {
+                                    const studentData = studentSnapshot.val();
+                                    if (studentData) {
+                                        const studentSection = studentData.section;
+
+                                        if (selectedSection === "all" || studentSection === selectedSection) {
+                                            const groupLeader = book.authors[0]
+                                                ? `${book.authors[0].firstName} ${book.authors[0].lastName}`
+                                                : "N/A";
+
+                                            const members = book.authors
+                                                .slice(1)
+                                                .map(author => `${author.firstName} ${author.lastName}`)
+                                                .join(", ") || "None";
+
+                                            const uploadDate = formatDate(book.uploadDate);
+                                            const approveDate = formatDate(book.approveDate);
+
+                                            const searchableText = [
+                                                book.id,
+                                                book.title,
+                                                groupLeader,
+                                                members,
+                                                uploadDate,
+                                                approveDate,
+                                                book.adviser
+                                            ]
+                                                .map(field => field.toLowerCase())
+                                                .join(" ");
+
+                                            if (searchableText.includes(searchTerm.toLowerCase())) {
+                                                filteredBooks.push(book);
+                                            }
+                                            allBooks.push(book);
+                                        }
+                                    }
+                                    resolve();
+                                }, { onlyOnce: true });
+                            });
+
+                            promises.push(promise);
+                        }
+                    }
+
+                    Promise.all(promises).then(() => {
+                        renderBooks(filteredBooks);
+                    });
+                } else {
+                    console.log("No books available");
+                }
+            });
+        };
+
+        window.openModal = (bookId) => {
+            const bookDetails = allBooks.find(book => book.id === bookId);
+            if (bookDetails) {
+                const groupLeader = bookDetails.authors[0]
+                    ? `${bookDetails.authors[0].firstName} ${bookDetails.authors[0].lastName}`
+                    : "N/A";
+                const members = bookDetails.authors.slice(1).map(author => `${author.firstName} ${author.lastName}`).join(", ") || "None";
+
+                modalContent.innerHTML = `
+            <p><strong>Research ID:</strong> ${bookDetails.id}</p>
+            <p><strong>Title:</strong> ${bookDetails.title}</p>
+            <p><strong>Group Leader:</strong> ${groupLeader}</p>
+            <p><strong>Members:</strong> ${members}</p>
+            <p><strong>Date Uploaded:</strong> ${formatDate(bookDetails.uploadDate)}</p>
+            <p><strong>Date Approved:</strong> ${formatDate(bookDetails.approveDate)}</p>
+            <p><strong>Research Adviser:</strong> ${bookDetails.adviser}</p>
+            <p><strong>Research Teacher:</strong> ${bookDetails.researchTeacher}</p>
+            <p><strong>IMRAD:</strong> <a href="${bookDetails.url}" target="_blank">View IMRAD</a></p>
+            <p><strong>Abstract:</strong> <a href="${bookDetails.abstracturl}" target="_blank">View Abstract</a></p>
+        `;
+                viewModal.style.display = "flex";
+            } else {
+                console.error(`Book with ID ${bookId} not found.`);
+            }
+        };
+
+        closeButton.onclick = () => {
+            viewModal.style.display = "none";
+        };
+
+        window.onclick = (event) => {
+            if (event.target === viewModal) {
+                viewModal.style.display = "none";
+            }
+        };
+
+        showAllOption.value = "all";
+        showAllOption.textContent = "Show All";
+        entriesDropdown.appendChild(showAllOption);
+
+        onValue(coursesRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const userCourses = snapshot.val();
+
+                for (const courseId in userCourses) {
+                    const courseData = userCourses[courseId];
+
+                    if (courseData.noMajor) {
+                        for (const sectionCode in courseData) {
+                            if (sectionCode !== "courseAcronym" && sectionCode !== "courseName" && sectionCode !== "noMajor") {
+                                const sectionInfo = courseData[sectionCode];
+                                const option = document.createElement("option");
+                                option.value = sectionInfo.sectionName;
+                                option.textContent = sectionInfo.sectionName;
+                                entriesDropdown.appendChild(option);
+                            }
+                        }
+                    } else {
+                        for (const major in courseData) {
+                            if (major !== "courseAcronym" && major !== "courseName") {
+                                const sections = courseData[major];
+                                for (const sectionCode in sections) {
+                                    const sectionInfo = sections[sectionCode];
+                                    const option = document.createElement("option");
+                                    option.value = sectionInfo.sectionName;
+                                    option.textContent = sectionInfo.sectionName;
+                                    entriesDropdown.appendChild(option);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                console.log("No course data available for this user.");
+            }
+        });
+
+        const formatDate = (timestamp) => {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        };
+
+        const searchInput = document.getElementById("search-bar");
+        const searchButton = document.querySelector(".search-button");
+
+        const searchBooks = () => {
+            const searchTerm = searchInput.value.trim();
+            const selectedSection = entriesDropdown.value;
+            loadBooks(selectedSection, searchTerm);
+        };
+
+        searchButton.addEventListener("click", searchBooks);
+
+        searchInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                searchBooks();
+            }
+        });
+
+        const renderBooks = (books) => {
+            sectionTable.innerHTML = "";
+
+            const headerRow = document.createElement("tr");
+            headerRow.innerHTML = `
+                <th>Research ID</th>
+                <th>Title</th>
+                <th>Date Uploaded</th>
+                <th>Group Leader</th>
+                <th>Action</th>
+            `;
+            sectionTable.appendChild(headerRow);
+
+            if (books.length === 0) {
+                sectionTable.innerHTML += "<tr><td colspan='5'>No research found</td></tr>";
+                return;
+            }
+
+            books.forEach(book => {
+                const groupLeader = book.authors[0] ? `${book.authors[0].firstName} ${book.authors[0].lastName}` : "N/A";
+                const row = document.createElement("tr");
+                row.innerHTML = `
+    <td>${book.id}</td>
+    <td>${book.title}</td>
+    <td>${formatDate(book.uploadDate)}</td>
+    <td>${groupLeader}</td>
+    <td><img class="eye-icon" src="images/eye.png" alt="View" onclick="openModal('${book.id}')">
+</td>
+`;
+                sectionTable.appendChild(row);
+            });
+        };
+
+        loadBooks("all");
+
+        entriesDropdown.addEventListener("change", () => {
+            const selectedSection = entriesDropdown.value;
+            loadBooks(selectedSection);
+        });
+    </script>
+
+</body>
+
+</html>

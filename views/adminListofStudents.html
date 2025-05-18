@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/adminListofStudents.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="Category Icon">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="main-header">
+                <div class="header-text">
+                    <div>
+                        <span class="count-display" id="total-student-count"></span>
+                        <span class="all-users">Listed Students</span>
+                    </div>
+                </div>
+                <div class="search-container">
+                    <select id="course-dropdown">
+                        <option value="all">Show All</option>
+                    </select>
+                    <input type="text" class="search-bar" id="search-bar" placeholder="Search by name or email">
+                    <span class="clear-icon" id="clear-icon">&times;</span>
+                    <button class="search-button" id="search-button">Search</button>
+                </div>
+                <button class="print-button" id="exportButton">
+                    <img src="/images/print.png" class="print-icon" alt="Print Icon"> Export
+                </button>
+            </div>
+            <table class="all-students-table" id="student-table">
+                <thead>
+                    <tr>
+                        <th class="all-students-th-centered">Student Number</th>
+                        <th class="all-students-th-centered">Name</th>
+                        <th class="all-students-th-centered">Section</th>
+                        <th class="all-students-th-centered">Email</th>
+                        <th class="all-students-th-centered">Date Added</th>
+                    </tr>
+                </thead>
+                <tbody class="tbody1" id="tbody1"></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script rel="javascript" src="/js/adminListofStudents.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref, child, onValue, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+        const storage = getStorage();
+
+        const studentsRef = ref(db, "accounts/");
+        const coursesRef = ref(db, 'Courses/');
+
+        onValue(studentsRef, (snapshot) => {
+            const studentData = snapshot.val();
+            const totalStudents = Object.keys(studentData || {}).length;
+            const totalStudentCount = document.getElementById("total-student-count");
+            totalStudentCount.textContent = totalStudents;
+        });
+
+        const searchBar = document.getElementById('search-bar');
+        const clearIcon = document.getElementById('clear-icon');
+        const courseDropdown = document.getElementById('course-dropdown');
+        const tbody = document.getElementById('tbody1');
+
+
+        function populateCourseDropdown(courseAcronyms) {
+            courseDropdown.innerHTML = '<option value="all">Show All</option>';
+            const uniqueCourseAcronyms = [...new Set(courseAcronyms)];  // Remove duplicates
+            uniqueCourseAcronyms.forEach(courseAcronym => {
+                const option = document.createElement('option');
+                option.value = courseAcronym;
+                option.textContent = courseAcronym;
+                courseDropdown.appendChild(option);
+            });
+        }
+
+        function displayFilteredStudents(selectedAcronym) {
+            get(studentsRef).then((snapshot) => {
+                const students = [];
+                snapshot.forEach(childSnapshot => {
+                    const student = childSnapshot.val();
+                    const studentSection = student.section;
+
+                    if (selectedAcronym === 'all' || student.section.includes(selectedAcronym)) {
+                        students.push(student);
+                    }
+                });
+                populateStudentTable(students);
+            }).catch(error => {
+                console.error("Error fetching accounts data:", error);
+            });
+        }
+
+        function groupStudentsByCourseAndSection(students) {
+            const groupedData = students.reduce((acc, student) => {
+                const courseAcronym = student.course || 'Unknown';
+                const section = student.section;
+
+                if (!acc[courseAcronym]) {
+                    acc[courseAcronym] = {};
+                }
+
+                if (!acc[courseAcronym][section]) {
+                    acc[courseAcronym][section] = [];
+                }
+
+                acc[courseAcronym][section].push(student);
+                return acc;
+            }, {});
+
+            return groupedData;
+        }
+
+        function populateStudentTable(students) {
+            tbody.innerHTML = "";  // Clear existing rows
+            const groupedData = groupStudentsByCourseAndSection(students);
+
+            Object.keys(groupedData).forEach(courseAcronym => {
+                const courseSection = groupedData[courseAcronym];
+                Object.keys(courseSection).forEach(section => {
+                    const sectionStudents = courseSection[section];
+                    sectionStudents.forEach(student => {
+                        let trow = document.createElement("tr");
+                        let td1 = document.createElement('td');
+                        let td2 = document.createElement('td');
+                        let td3 = document.createElement('td');
+                        let td4 = document.createElement('td');
+                        let td5 = document.createElement('td');
+
+                        td1.innerHTML = student.studentno;
+                        td2.innerHTML = student.fullname;
+                        td3.innerHTML = student.section;
+                        td4.innerHTML = student.email;
+                        td5.innerHTML = student.creationDate;
+
+                        trow.appendChild(td1);
+                        trow.appendChild(td2);
+                        trow.appendChild(td3);
+                        trow.appendChild(td4);
+                        trow.appendChild(td5);
+
+                        tbody.appendChild(trow);
+                    });
+                });
+            });
+        }
+
+        get(coursesRef).then(snapshot => {
+            const courses = snapshot.val();
+            const courseAcronyms = [];
+
+            for (const courseId in courses) {
+                const courseData = courses[courseId];
+                for (const subId in courseData) {
+                    const subData = courseData[subId];
+                    if (subData.courseAcronym) {
+                        courseAcronyms.push(subData.courseAcronym);
+                    }
+                }
+            }
+
+            populateCourseDropdown(courseAcronyms);
+        }).catch(error => {
+            console.error("Error fetching course data:", error);
+        });
+
+
+        courseDropdown.addEventListener('change', function () {
+            const selectedAcronym = courseDropdown.value;
+            displayFilteredStudents(selectedAcronym);
+        });
+
+        displayFilteredStudents('all');
+
+        searchBar.addEventListener('input', () => {
+            clearIcon.style.display = searchBar.value ? 'block' : 'none';
+        });
+
+        clearIcon.addEventListener('click', () => {
+            searchBar.value = '';
+            clearIcon.style.display = 'none';
+            searchBar.focus();
+        });
+
+        function performSearch() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const rows = document.querySelectorAll('#tbody1 tr');
+
+            rows.forEach(row => {
+                const studNo = row.children[0].textContent.toLowerCase();
+                const name = row.children[1].textContent.toLowerCase();
+                const section = row.children[2].textContent.toLowerCase();
+                const email = row.children[3].textContent.toLowerCase();
+
+                if (studNo.includes(query) || name.includes(query) || section.includes(query) || email.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('search-button').addEventListener('click', function () {
+            performSearch();
+        });
+
+        document.getElementById('search-bar').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        function AddItemToTable(studNo, name, section, email, date) {
+            let trow = document.createElement("tr");
+            let td1 = document.createElement('td');
+            let td2 = document.createElement('td');
+            let td3 = document.createElement('td');
+            let td4 = document.createElement('td');
+            let td5 = document.createElement('td');
+
+            td1.innerHTML = studNo;
+            td2.innerHTML = name;
+            td3.innerHTML = section;
+            td4.innerHTML = email;
+            td5.innerHTML = date;
+
+            trow.appendChild(td1);
+            trow.appendChild(td2);
+            trow.appendChild(td3);
+            trow.appendChild(td4);
+            trow.appendChild(td5);
+
+            document.getElementById('tbody1').appendChild(trow);
+        }
+
+
+        function AddAllItemsToTable(TheStudent) {
+            tbody.innerHTML = "";
+
+            TheStudent
+                .filter(element => element.studentno && element.fullname && element.section && element.email)
+                .forEach((element, index) => {
+                    AddItemToTable(element.studentno, element.fullname, element.section, element.email, element.creationDate);
+                });
+        }
+
+        onValue(studentsRef, (snapshot) => {
+            const students = [];
+
+            snapshot.forEach(childSnapshot => {
+                const student = childSnapshot.val();
+                if (student.studentno && student.fullname && student.section && student.email && student.creationDate) {
+                    students.push(student);
+                }
+            });
+
+            AddAllItemsToTable(students);
+        });
+
+        document.getElementById('exportButton').addEventListener('click', async function () {
+            Swal.fire({
+                title: 'Export Options',
+                text: 'Choose a format to export:',
+                icon: 'info',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'PDF',
+                denyButtonText: 'Excel',
+                cancelButtonText: 'CSV'
+            }).then(async (result) => {
+                try {
+                    const snapshot = await get(studentsRef);
+                    if (snapshot.exists()) {
+                        const students = [];
+                        const groupedData = {};
+
+                        snapshot.forEach(childSnapshot => {
+                            const student = childSnapshot.val();
+                            if (student.studentno && student.fullname && student.section) {
+                                students.push({
+                                    StudentNo: student.studentno,
+                                    Name: student.fullname,
+                                    Gender: student.gender,
+                                    Email: student.email,
+                                    Section: student.section
+                                });
+                            }
+                        });
+
+                        students.forEach(student => {
+                            const section = student.Section;
+                            groupedData[section] = groupedData[section] || [];
+                            groupedData[section].push(student);
+                        });
+
+                        if (result.isConfirmed) {
+                            generatePDF(groupedData); // Pass grouped data for PDF generation
+                        } else if (result.isDenied) {
+                            generateExcel(groupedData); // Pass grouped data for Excel generation
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            generateCSV(groupedData); // Pass grouped data for CSV generation
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'No Data Available',
+                            text: 'The database is empty. No data to export.',
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while fetching data. Please try again later.',
+                    });
+                }
+            });
+        });
+
+        function generatePDF(groupedData) {
+            showLoader();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let yOffset = 10;
+
+            // Add the header content with logos and contact information (optional, same as previous function)
+            const leftLogo = '/images/BSU.png'; // Replace with the actual path
+            const rightLogo = '/images/Sarmiento.png'; // Replace with the actual path
+
+            doc.addImage(leftLogo, 'PNG', 10, 10, 30, 30); // Left logo
+            doc.addImage(rightLogo, 'PNG', 170, 10, 30, 30); // Right logo
+
+            doc.setFontSize(16); // Larger font for BSU header
+            doc.setFont('helvetica', 'bold');
+            doc.text('Bulacan State University', 105, 20, { align: 'center' });
+
+            doc.setFontSize(12); // Smaller font for other lines
+            doc.setFont('helvetica', 'normal');
+            doc.text('Sarmiento Campus', 105, 26, { align: 'center' });
+            doc.text('Republic of the Philippines', 105, 32, { align: 'center' });
+            doc.text('City of San Jose del Monte, Bulacan', 105, 38, { align: 'center' });
+            doc.text('Tel. No: (044) 815-4089', 105, 44, { align: 'center' });
+            doc.text('Email Address: sarmiento@bulsu.edu.ph', 105, 50, { align: 'center' });
+
+            yOffset = 60; // Adjust start point after header
+
+            for (const section in groupedData) {
+                doc.setFontSize(14); // Larger font for section header
+                doc.text(`Section: ${section}`, 10, yOffset, { align: 'left' });
+                yOffset += 10;
+
+                const tableData = groupedData[section].map(student => [
+                    student.StudentNo,
+                    student.Name,
+                    student.Gender,
+                    student.Email
+                ]);
+
+                doc.autoTable({
+                    startY: yOffset,
+                    head: [["Student No", "Name", "Gender", "Email"]],
+                    body: tableData,
+                    styles: { halign: 'justify' } // Justify table contents
+                });
+
+                yOffset = doc.lastAutoTable.finalY + 10;
+            }
+
+            const currentDate = new Date();
+            const dateString = currentDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeString = currentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const userUID = sessionStorage.getItem("userUID");
+
+            const adminsRef = ref(db, `Admins/${userUID}`);
+            onValue(adminsRef, (snapshot) => {
+                const adminName = snapshot.exists() ? snapshot.val().name : 'CRDU Head';
+
+                doc.setFontSize(10);
+                doc.text(`Date Generated: ${dateString}, ${timeString}`, 10, 290);
+                doc.text(`Prepared by: ${adminName}`, 10, 295);
+
+                setTimeout(() => {
+                    doc.save('students_data.pdf');
+                    showSuccessMessage();
+                }, 1000);
+            });
+        }
+
+        function generateExcel(groupedData) {
+            showLoader();
+            const wb = XLSX.utils.book_new();
+
+            for (const section in groupedData) {
+                const ws = XLSX.utils.json_to_sheet(groupedData[section]);
+                XLSX.utils.book_append_sheet(wb, ws, `${section}`);
+            }
+
+            XLSX.writeFile(wb, "students_data.xlsx");
+            showSuccessMessage();
+        }
+
+        function generateCSV(groupedData) {
+            showLoader();
+            let csvContent = "";
+
+            for (const section in groupedData) {
+                csvContent += `Section: ${section}\n`;
+                csvContent += ["Student No", "Name", "Gender", "Email"].join(",") + "\n";
+                csvContent += groupedData[section].map(student => [
+                    student.StudentNo,
+                    `"${student.Name}"`,
+                    student.Gender,
+                    student.Email
+                ].join(",")).join("\n") + "\n\n";
+            }
+
+            const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "students_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showSuccessMessage();
+        }
+
+        function showLoader() {
+            Swal.fire({
+                title: 'Exporting...',
+                html: 'Please wait while we generate your file.',
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading()
+            });
+        }
+
+        function showSuccessMessage() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Export Complete',
+                text: 'Your file has been successfully exported.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReSearch: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+    <link rel="stylesheet" href="/css/adminProfile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teacher</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionRequest">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests<br>Monitoring</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main">
+            <div class="profile-container">
+                <div class="profile-card">
+                    <div class="profile-image-section">
+                        <img alt="User Image" class="profile-image">
+                        <input type="file" id="imageUpload" style="display: none;" accept="image/*">
+                        <button id="uploadButton">Upload New Picture</button>
+                    </div>
+                    <div class="profile-info-section">
+                        <label for="profileNameInput">Name:</label>
+                        <input type="text" id="profileNameInput" class="profile-name-input" autocomplete="off">
+                        <label for="profileEmailInput">Email:</label>
+                        <input type="text" id="profileEmailInput" class="profile-email-input" readonly>
+                        <label for="currentPassword">Current Password:</label>
+                        <div class="password-input-container">
+                            <input type="password" id="currentPassword" class="profile-password-input">
+                        </div>
+                        <label for="newPassword">New Password:</label>
+                        <div class="password-input-container">
+                            <input type="password" id="newPassword" class="profile-password-input">
+                        </div>
+                        <button id="saveChangesButton">Save Changes</button>
+                        <button id="changeEmailButton" class="btn-change-email">Change Email</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script src="/js/adminViewProfile.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getAuth, updatePassword, updateEmail, signInWithEmailAndPassword, sendEmailVerification, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getStorage, ref as storageReference, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        let currentName = "";  // Store the current name here
+
+        function loadProfileData() {
+            const userUID = sessionStorage.getItem('userUID');
+
+            if (userUID) {
+                const userRef = ref(db, `Admins/${userUID}`);
+                onValue(userRef, (snapshot) => {
+                    const adminInfo = snapshot.val();
+
+                    if (adminInfo) {
+                        currentName = adminInfo.name;
+                        document.getElementById('profileNameInput').value = adminInfo.name;
+                        document.getElementById('profileEmailInput').value = adminInfo.email;
+
+                        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/re-search-9c52f.appspot.com/o/ProfileImages%2F${userUID}?alt=media`;
+                        const profileImage = document.querySelector('.profile-image');
+                        const profilePic = document.querySelector('.profile-pic');
+
+                        // Set the image source and handle fallback
+                        profileImage.src = imageUrl;
+                        profilePic.src = imageUrl;
+
+                        profileImage.onerror = profilePic.onerror = () => {
+                            profileImage.src = "/images/administration.png"; // Default image
+                            profilePic.src = "/images/administration.png"; // Default image
+                        };
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        window.addEventListener('load', loadProfileData);
+
+        document.getElementById('saveChangesButton').addEventListener('click', async function () {
+            const newName = document.getElementById('profileNameInput').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const userUID = sessionStorage.getItem('userUID');
+            let changesMade = false;
+            let message = "";
+
+            if (userUID) {
+                const userRef = ref(db, `Admins/${userUID}`);
+
+                try {
+                    if (newName && newName !== currentName) {
+                        await update(userRef, { name: newName });
+                        message = "Name changed successfully.";
+                        changesMade = true;
+                    }
+
+                    if (newPassword && newPassword !== "") {
+                        const auth = getAuth(); // Initialize auth if needed for password update
+                        const user = await auth.currentUser;
+                        await updatePassword(user, newPassword);
+                        message = changesMade ? "Name and password updated successfully." : "Password updated successfully.";
+                        changesMade = true;
+                    }
+
+                    if (!changesMade) {
+                        message = "No changes were made.";
+                    }
+
+                    Swal.fire('Success', message, 'info');
+                } catch (error) {
+                    console.error("Error updating profile:", error);
+                    Swal.fire('Error', 'An error occurred while updating your profile.', 'error');
+                }
+            } else {
+                console.warn("User not authenticated.");
+                Swal.fire('Warning', 'User not authenticated. Please try again.', 'warning');
+            }
+        });
+
+        document.getElementById('changeEmailButton').addEventListener('click', async function () {
+            const { value: result } = await Swal.fire({
+                title: 'Enter New Email and Your Current Password',
+                html: `
+        <input id="newEmail" class="swal2-input" placeholder="New Email" type="email" />
+        <input id="currentPassword" class="swal2-input" placeholder="Current Password" type="password" />
+    `,
+                showCancelButton: true,
+                confirmButtonText: 'Update Email',
+                cancelButtonText: 'Cancel',
+                preConfirm: () => {
+                    const newEmail = document.getElementById('newEmail').value;
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    return { newEmail, currentPassword };
+                }
+            });
+
+            if (!result) return;
+
+            const { newEmail, currentPassword } = result;
+            const userUID = sessionStorage.getItem('userUID');
+
+            if (newEmail && userUID) {
+                try {
+                    const auth = getAuth();
+                    const user = auth.currentUser;
+                    if (!user) return;
+
+                    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+
+                    await reauthenticateWithCredential(user, credential);
+
+                    await updateEmail(user, newEmail);  // Update email in Firebase
+                    const userRef = ref(db, `Admins/${userUID}`);
+                    await update(userRef, { email: newEmail });  // Update email in Realtime Database
+
+                    await sendEmailVerification(user);  // Send verification email to the new email
+
+                    document.getElementById('profileEmailInput').value = newEmail;
+                    document.getElementById('profileEmail').textContent = newEmail;
+
+                    Swal.fire('Success', 'Your email has been updated. Please check your new email for verification.', 'success');
+                } catch (error) {
+                    console.error("Error updating email:", error);
+                    Swal.fire('Error', 'Failed to update email. Please try again.', 'error');
+                }
+            } else {
+                console.warn("User not authenticated.");
+                Swal.fire('Warning', 'User not authenticated. Please try again.', 'warning');
+            }
+        });
+
+        document.getElementById('imageUpload').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            const userUID = sessionStorage.getItem('userUID');
+
+            if (file && userUID) {
+                const validTypes = ['image/jpeg', 'image/png'];
+                const maxFileSize = 5 * 1024 * 1024; // 5MB
+
+                if (!validTypes.includes(file.type)) {
+                    Swal.fire('Error', "Invalid file type. Please upload an image in JPEG or PNG format.", 'error');
+                    return;
+                }
+
+                if (file.size > maxFileSize) {
+                    Swal.fire('Error', "File is too large. Please upload an image smaller than 5MB.", 'error');
+                    return;
+                }
+
+                const storagePath = `ProfileImages/${userUID}`;
+                const storageRef = storageReference(storage, storagePath);
+
+                uploadBytes(storageRef, file).then((snapshot) => {
+                    getDownloadURL(snapshot.ref).then((downloadURL) => {
+                        const userRef = ref(db, `Admins/${userUID}`);
+                        update(userRef, { profileImage: downloadURL }).then(() => {
+                            document.querySelector('.profile-image').src = downloadURL;
+                            document.querySelector('.profile-pic').src = downloadURL;
+                            Swal.fire('Success', 'Image uploaded successfully.', 'success');
+                        }).catch((error) => {
+                            console.error("Error updating profile image URL:", error);
+                            Swal.fire('Error', 'Error updating profile image. Please try again.', 'error');
+                        });
+                    });
+                }).catch((error) => {
+                    console.error("Error uploading file:", error);
+                    Swal.fire('Error', 'Error uploading file. Please try again.', 'error');
+                });
+            } else {
+                console.warn("No file selected or user not authenticated.");
+                Swal.fire('Warning', 'No file selected or user not authenticated.', 'warning');
+            }
+        });
+
+        document.getElementById('showLogoutModal').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'block';
+        });
+
+        document.getElementById('signoutButton').addEventListener('click', function () {
+            signOut(auth).then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error("Error signing out:", error);
+            });
+        });
+
+        document.querySelector('.btn-cancel').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+    </script>
+</body>
+
+</html>

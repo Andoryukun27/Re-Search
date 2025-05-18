@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReSearch</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+  <div class="background"></div>
+  <div class="login-container">
+    <div class="logo-container"></div>
+    <img src="images/Sarmiento.png" alt="Sarmiento School Logo" class="school-logo">
+  </div>
+  <div class="container">
+    <form id="SignupForm">
+      <h2>Register Coordinator</h2>
+      <label for="name"><b>Username</b></label>
+      <input type="name" id="name" name="name" required autocomplete="off" aria-label="Name">
+      <label for="email"><b>Email</b></label>
+      <input type="email" id="email" name="email" required autocomplete="off" aria-label="Email">
+
+      <label for="password"><b>Password</b></label>
+      <div class="password-container">
+        <input type="password" id="password" name="password" required aria-label="Password">
+        <span class="password-toggle-icon" aria-label="Toggle password visibility">
+          <i class="fas fa-eye"></i>
+        </span>
+      </div>
+      <input type="hidden" id="profileImage" value="images/administration.png">
+      <button type="submit" class="btn btn-primary" id="submit">Submit</button>
+      <p>Already have an account? <a href="index.html"><u>Sign In</u></a></p>
+    </form>
+  </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getDatabase, set, ref } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+      authDomain: "re-search-9c52f.firebaseapp.com",
+      databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+      projectId: "re-search-9c52f",
+      storageBucket: "re-search-9c52f.appspot.com",
+      messagingSenderId: "915263512573",
+      appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+      measurementId: "G-R0Y7ZMM3XV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase();
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    let NameInp = document.getElementById('name');
+    let EmailInp = document.getElementById('email');
+    let PasswordInp = document.getElementById('password');
+    let ProfileImageInp = document.getElementById('profileImage'); // Default image path
+    let dateCreated = new Date().toISOString();
+
+    let SignupForm = document.getElementById('SignupForm');
+
+    let RegisterAdmin = evt => {
+      evt.preventDefault();
+
+      createUserWithEmailAndPassword(auth, EmailInp.value, PasswordInp.value).then((credentials) => {
+        const user = credentials.user;
+        const uid = user.uid;
+
+        // Get the default profile image
+        const filePath = ProfileImageInp.value;
+
+        fetch(filePath) // Fetch the image as a blob
+          .then(res => res.blob())
+          .then(file => {
+            // Create a storage reference using the UID as the file name
+            const storagePath = `ProfileImages/${uid}`;
+            const imageRef = storageRef(storage, storagePath);
+
+            // Upload the image to Firebase Storage
+            uploadBytes(imageRef, file).then(() => {
+              // Get the uploaded image's download URL
+              getDownloadURL(imageRef).then((url) => {
+                // Store user data in the database along with profile image URL
+                set(ref(db, 'Admins/' + uid), {
+                  email: EmailInp.value,
+                  name: NameInp.value,
+                  timeStamp: dateCreated,
+                  role: 'admin',
+                  profileImage: url  // Save the image URL in the database
+                });
+              });
+            }).catch((error) => {
+              console.error("Error uploading image:", error);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching image:", error);
+          });
+
+      }).catch((error) => {
+        alert(error.message);
+        console.log(error.code);
+        console.log(error.message);
+      });
+    };
+
+    SignupForm.addEventListener('submit', RegisterAdmin);
+  </script>
+</body>
+
+</html>

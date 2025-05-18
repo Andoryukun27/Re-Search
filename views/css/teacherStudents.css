@@ -1,0 +1,227 @@
+.main-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.entries-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.search-container {
+    position: relative; /* Set the container position to relative */
+    width: 25%; /* Ensure the container takes full width */
+}
+
+.search-input {
+    padding: 10px;
+    margin-right: 0; /* Remove margin since button will overlap */
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px; /* Rounded corners only on left */
+    width: calc(100% - 100px); /* Adjust width to leave space for the button */
+}
+
+.search-button {
+    position: absolute; /* Position the button inside the container */
+    top: 0; /* Align to the top */
+    height: 100%; /* Make the button full height of the input */
+    padding: 8px 16px;
+    font-size: 16px;
+    color: white;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 0 4px 4px 0; /* Rounded corners only on right */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #388E3C;
+}
+
+.sections-dropdown {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.section-select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.upload-button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.upload-button:hover {
+    background-color: blue;
+}
+
+.table-container {
+    height: 675px;
+    overflow-y: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%; /* Full width */
+    border-collapse: collapse; /* Remove gaps between cells */
+}
+
+th, td {
+    padding: 10px; /* Padding for table cells */
+    border: 1px solid #ccc; /* Border for table cells */
+}
+
+th {
+    background-color: #F18D43;
+    color: white;
+    position: relative;
+    font-weight: bold;
+    border: 1px solid var(--two-use-color);
+    text-align: center;
+}
+
+td {
+    background-color: white;
+    border: 1px solid #F18D43;
+    padding: 8px;
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+}
+
+img.eye-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+.sort-arrow {
+    cursor: pointer;
+    margin-left: 5px;
+    transition: transform 0.2s;
+}
+
+.sort-arrow.asc {
+    transform: rotate(0deg);
+}
+
+.sort-arrow.desc {
+    transform: rotate(180deg);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.student-view-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    z-index: 1000;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    border: 2px solid var(--two-use-color);
+}
+
+.modal-content {
+    background-color: var(--background-color-4);
+}
+
+.modal-content h2 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-content p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    flex: 1;
+    margin: 0 5px;
+}
+
+#setLeaderButton {
+    background-color: #4CAF50;
+}
+
+#setLeaderButton:hover {
+    background-color: #388E3C;
+}
+
+#setStudentButton {
+    background-color: #FF9800;
+}
+
+#setStudentButton:hover {
+    background-color: #F57C00;
+}
+
+#cancelButton {
+    background-color: #ccc;
+    color: #333;
+}
+
+#cancelButton:hover {
+    background-color: #999;
+}
+
+.modal-buttons button:disabled {
+    background-color: #BDBDBD;
+    cursor: not-allowed;
+}
+
+#setLeaderButton:disabled {
+    background-color: #BDBDBD;
+}
+
+#setStudentButton:disabled {
+    background-color: #BDBDBD;
+}

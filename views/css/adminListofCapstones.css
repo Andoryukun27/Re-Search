@@ -1,0 +1,187 @@
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--background-color4);
+    padding: 38px;
+    margin-left: -40px;
+    margin-top: -40px;
+    height: 100px;
+    width: 100%;
+    position: relative;
+}
+
+.header-text {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: 60px;
+}
+
+.all-users {
+    display: inline-block;
+    font-size: 24px;
+    font-weight: 600;
+    font-style: italic;
+    color: #333;
+    margin-left: 10px;
+}
+
+.count-display {
+    margin-left: 40px;
+    display: inline-block;
+    font-size: 32px;
+    font-style: italic;
+    font-weight: bold;
+    color: #ff6600;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 550px;
+    width: 100%;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.search-bar {
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 16px;
+    flex-grow: 1; /* Allow the search bar to grow */
+}
+
+#course-dropdown {
+    padding: 8px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    border-radius: 4px;
+}
+
+.clear-icon {
+    font-size: 24px;
+    color: #888;
+    cursor: pointer;
+    display: none;
+    margin-left: 10px;
+}
+
+
+.clear-icon:hover {
+    color: #000;
+}
+
+.search-button {
+    padding: 10px 18px;
+    background-color: var(--one-use-color);
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 0 8px 8px 0; /* Rounded corners on the right */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 8px;
+    flex-shrink: 0; /* Prevent it from shrinking */
+    height: 100%; /* Ensure it fills the container height */
+}
+
+.search-button:hover {
+    background-color: var(--two-use-color);
+}
+
+.print-button {
+    display: flex;
+    align-items: center;
+    background-color: #0e8c9b;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: absolute;
+    right: 40px;
+}
+
+.print-button:hover {
+    background-color: #09606a;
+}
+
+.print-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.all-research-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.all-research-table th,
+.all-research-table td {
+    border: 1px solid var(--two-use-color);
+    padding: 8px;
+}
+
+.all-research-table th {
+    background-color: var(--primary-color);
+    text-align: center;
+    color: white;
+}
+
+.all-research-table td {
+    color: #2C2C2C;
+    text-align: center;
+    background-color: white;
+}
+
+.all-research-table th:nth-child(1), /* Targeting the Title header */
+.all-research-table td:nth-child(1) { /* Targeting the Title cells */
+    max-width: 200px; /* Adjust this value as needed */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+}
+
+.all-research-table th:nth-child(2), /* Targeting the Title header */
+.all-research-table td:nth-child(2) { /* Targeting the Title cells */
+    max-width: 300px; /* Adjust this value as needed */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+}
+
+/*.all-research-table tr:nth-child(odd) {
+    background-color: var(--background-color1);
+}
+
+.all-research-table tr:nth-child(even) {
+    background-color: var(--Border-color);
+}
+
+.all-research-th-centered {
+    text-align: center;
+}*/
+
+.sortable {
+    cursor: pointer;
+    position: relative; /* Allow positioning of the arrow */
+}
+
+.arrow {
+    display: inline-block;
+    font-size: 0.8em;
+    margin-left: 5px; /* Add some space between text and arrow */
+    transition: transform 0.2s ease; /* For smooth rotation */
+}

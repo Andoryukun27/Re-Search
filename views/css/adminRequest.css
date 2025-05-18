@@ -1,0 +1,225 @@
+/* Request Container Styling */
+.request-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 150px;
+    background-color: white;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.request-info {
+    flex: 1;
+    text-align: left;
+}
+
+.request-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: black;
+    margin: 0;
+}
+
+.request-title {
+    flex-grow: 2; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    height: 100%; 
+    position: relative; /* Set position to relative for pseudo-elements */
+}
+
+.research-title {
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.request-buttons {
+    display: flex;
+    gap: 30px;
+}
+
+button {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-preview {
+    background-color: #0E859A;
+    color: white;
+}
+
+.btn-preview:hover {
+    background-color: #1b3b5e
+    ;
+}
+
+.btn-imrad {
+    background-color: #D4772E;
+    color: white;
+}
+
+.btn-imrad:hover {
+    background-color: #814b05;
+}
+
+.request-status {
+    flex: 1;
+    text-align: right;
+}
+
+.btn-view-research-lists {
+    margin: auto;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.date {
+    font-size: 16px;
+    color: var(--Primary-color);
+    margin-bottom: 10px; /* Space between date and status */
+}
+
+.status-approved {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.status-returned {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.status-pending-approval {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.status-approved,
+.status-returned,
+.status-pending-approval {
+    display: inline-block;
+}
+
+/* Adviser Info-Box */
+.adviser-info-box {
+    position: absolute; /* This is correct for positioning */
+    background-color: var(--background-color2);
+    border: 1px solid var(--Border-color);
+    padding: 15px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 100;
+    max-width: 400px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: opacity 0.3s; /* Optional for a smooth appearance */
+}
+
+.adviser-info-box img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    object-fit: cover;
+    border: 2px solid var(--Border-color);
+}
+
+.adviser-info-box p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: var(--text-color);
+    word-wrap: break-word;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%;
+    border-radius: 10px;
+}
+
+.close-button {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Modal styling */
+.research-modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Modal background */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 1500px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close-modal {
+    float: right;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.research-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.research-table th, .research-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.research-table th {
+    background-color: #f2f2f2;
+}

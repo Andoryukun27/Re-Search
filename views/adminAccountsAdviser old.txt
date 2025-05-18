@@ -1,0 +1,248 @@
+Research Coordinator data not found.
+
+No user record found.
+
+<script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, get, set, ref, child, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+        const storage = getStorage();
+
+        const adviserButton = document.getElementById('adviserButton');
+        const adviserModal = document.getElementById('adviserModal');
+        const saveAdviserButton = document.getElementById('saveAdviserButton');
+        const cancelAdviserButton = document.getElementById('cancelAdviserButton');
+
+        adviserButton.addEventListener('click', openAdviserModal);
+        saveAdviserButton.addEventListener('click', saveAdviser);
+        cancelAdviserButton.addEventListener('click', () => {
+            closeAdviserModal();
+            clearAdviserInputs();  // Clear input fields when cancel button is clicked
+        });
+
+        function openAdviserModal() {
+            adviserModal.style.display = 'flex';
+        }
+
+        function closeAdviserModal() {
+            adviserModal.style.display = 'none';
+        }
+
+        function clearAdviserInputs() {
+            document.getElementById('adviserName').value = '';
+            document.getElementById('adviserEmail').value = '';
+        }
+
+        function generateEmployeeID() {
+            const randomPart = Math.floor(Math.random() * 100000);
+            const timestampPart = Date.now().toString().slice(-5);
+            return `EMP-${randomPart}-${timestampPart}`;
+        }
+
+        function saveAdviser() {
+            const adviserName = document.getElementById('adviserName').value.trim();
+            const adviserEmail = document.getElementById('adviserEmail').value.trim();
+            const currentUser = auth.currentUser;  // Save the current user (coordinator)
+
+            if (adviserName === '' || adviserEmail === '') {
+                alert('Please fill in all fields.');
+                return;
+            }
+            const employeeID = generateEmployeeID();
+            const tempPassword = Math.random().toString(36).slice(-8);
+            const timestamp = new Date().toISOString();
+            const storageRefPath = storageRef(storage, 'ProfileImages/' + employeeID + '.png');
+
+            createUserWithEmailAndPassword(auth, adviserEmail, tempPassword)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    const uid = user.uid;
+
+                    return fetch('/images/administration.png')
+                        .then(response => response.blob())
+                        .then(blob => uploadBytes(storageRefPath, blob))
+                        .then(snapshot => getDownloadURL(snapshot.ref))
+                        .then(downloadURL => {
+                            const adviserData = {
+                                employeeID: employeeID,
+                                name: adviserName,
+                                email: adviserEmail,
+                                profileImage: downloadURL,
+                                timestamp: timestamp,
+                                role: 'researchTeacher',
+                                tempPassword: tempPassword
+                            };
+                            return set(ref(db, 'Research Teacher/' + uid), adviserData);
+                        })
+                        .then(() => {
+                            // Sign back in the coordinator after creating the teacher
+                            return signInWithEmailAndPassword(auth, currentUser.email, currentUser.password);
+                        })
+                        .then(() => {
+                            alert(`Research Teacher account created successfully.`);
+                            closeAdviserModal();
+                            clearAdviserInputs();
+                        })
+                        .catch((error) => {
+                            alert('Error during account creation: ' + error.message);
+                        });
+                })
+                .catch((error) => {
+                    alert('Error creating Research Teacher account: ' + error.message);
+                });
+        }
+
+        function createTable() {
+            const teacherTable = document.getElementById("teacher-table");
+            teacherTable.innerHTML = ''; // Clear any existing content
+
+            // Create thead
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            const headers = ["Employee ID", "Name", "Email", "Date Joined", "Courses & Sections", "Actions"];
+
+            headers.forEach(headerText => {
+                const th = document.createElement("th");
+                th.className = "teacher-th-centered";
+                th.textContent = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            const tbody = document.createElement("tbody");
+            tbody.id = "tbody1"; // Give it an ID for further reference
+
+            teacherTable.appendChild(thead);
+            teacherTable.appendChild(tbody);
+        }
+
+        function AddAdviserToTable(employeeID, name, email, formattedTimestamp, uid, coursesSections) {
+            const trow = document.createElement("tr");
+
+            const coursesDisplay = Object.entries(coursesSections)
+                .flatMap(([course, sections]) => {
+                    return Object.keys(sections).map(section => `${course} ${section}`);
+                })
+                .join(', '); // Joining courses and sections into a string for display
+
+            trow.innerHTML = `
+        <td>${employeeID}</td>
+        <td>${name}</td>
+        <td>${email}</td>
+        <td>${formattedTimestamp}</td>
+        <td>${coursesDisplay}</td>
+        <td>
+            <img src="/images/edit.png" alt="Edit" class="edit-icon" style="cursor: pointer;" data-uid="${uid}">
+        </td>
+    `;
+            document.getElementById('tbody1').appendChild(trow);
+
+            trow.querySelector('.edit-icon').addEventListener('click', () => openEditModal(uid));
+        }
+
+        function loadAdvisers() {
+            const advisersRef = ref(db, 'Research Teacher/');
+            onValue(advisersRef, (snapshot) => {
+                const tbody = document.getElementById('tbody1');
+                tbody.innerHTML = '';  // Clear existing rows
+
+                snapshot.forEach((childSnapshot) => {
+                    const adviser = childSnapshot.val();
+                    const formattedTimestamp = new Date(adviser.timestamp).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+
+                    AddAdviserToTable(adviser.employeeID, adviser.name, adviser.email, formattedTimestamp, childSnapshot.key, adviser.coursesSections);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createTable();  // Dynamically create table structure (thead + tbody)
+            loadAdvisers(); // Load the adviser data into the table
+        });
+
+        const editAdviserModal = document.getElementById('edit-adviser-modal');
+        const saveChangesBtn = document.getElementById('saveChangesBtn');
+        const closeButton = document.getElementById('closeButton');
+
+        let isUpdating = false;
+
+        function attachEditListenerOnce() {
+            if (saveChangesBtn.getAttribute('data-listener') === 'true') return;
+
+            saveChangesBtn.addEventListener('click', async function (event) {
+                event.preventDefault(); // Prevent form submission
+
+                if (isUpdating) return;
+
+                const updatedName = document.getElementById('editAdviserName').value.trim();
+
+                if (!updatedName) {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+
+                const uid = editAdviserModal.getAttribute('data-uid');
+
+                try {
+                    isUpdating = true; // Set updating state
+                    const snapshot = await get(ref(db, `Research Teacher/${uid}`));
+                    const existingAdviser = snapshot.val();
+
+                    const updatedAdviserData = {
+                        name: updatedName
+                    };
+
+                    await update(ref(db, `Research Teacher/${uid}`), updatedAdviserData);
+                    alert('Adviser information updated successfully.');
+                    editAdviserModal.style.display = 'none'; // Close modal
+                    loadAdvisers(); // Refresh adviser list
+                } catch (error) {
+                    alert('Error updating adviser: ' + error.message);
+                } finally {
+                    isUpdating = false; // Reset flag after update
+                }
+            });
+
+            saveChangesBtn.setAttribute('data-listener', 'true'); // Mark that the listener is added
+        }
+
+        function openEditModal(uid) {
+            if (isUpdating) return;
+
+            get(ref(db, `Research Teacher/${uid}`)).then((snapshot) => {  // Changed to "Research Teacher"
+                const adviser = snapshot.val();
+                if (adviser) {
+                    document.getElementById('editAdviserName').value = adviser.name;
+                    document.getElementById('editAdviserEmail').value = adviser.email;
+
+                    editAdviserModal.setAttribute('data-uid', uid);
+                    attachEditListenerOnce();
+                    editAdviserModal.style.display = 'flex';
+                }
+            });
+        }
+
+        closeButton.addEventListener('click', () => {
+            editAdviserModal.style.display = 'none';
+        });
+    </script>

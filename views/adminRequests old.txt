@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re-Search: BulSU Sarmiento Campus Research Management System</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/dashResponsive.css">
+    <link rel="stylesheet" href="/css/adminRequest.css">
+</head>
+
+<body>
+    <header>
+        <div class="logosec">
+            <div class="logo-container">
+                <img src="/images/Sarmiento.png" alt="Bulacan State University Sarmiento Logo" class="school-logo">
+                <div class="school-info">
+                    <h1 class="university-name">Bulacan State University</h1>
+                    <h2 class="campus-name">Sarmiento Campus</h2>
+                </div>
+            </div>
+            <div class="three-lines" id="menu" onclick="myFunction(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
+        </div>
+        <div class="dp">
+            <img class="dpicn" alt="dp">
+        </div>
+    </header>
+    <div class="main-container">
+        <div class="navcontainer">
+            <nav class="nav">
+                <div class="nav-upper-options">
+                    <div class="nav-option optionDashboard">
+                        <img src="/images/dashboard.png" class="nav-img" alt="dashboard">
+                        <h3>Dashboard</h3>
+                    </div>
+                    <div class="nav-option optionAccount">
+                        <img src="/images/user.png" class="nav-img" alt="users">
+                        <h3>Accounts</h3>
+                        <div class="dropdown-container">
+                            <a href="adminAccounts.html">Students</a>
+                            <a href="adminAccountsAdviser.html">Research Teachers</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionCapstone">
+                        <img src="/images/capstone.png" class="nav-img" alt="capstones">
+                        <h3>Research<br>Titles</h3>
+                    </div>
+                    <div class="nav-option optionCategory">
+                        <img src="/images/categories.png" class="nav-img" alt="categories">
+                        <h3>Categories</h3>
+                    </div>
+                    <div class="nav-option optionStat">
+                        <img src="/images/statistics.png" class="nav-img" alt="statistics">
+                        <h3>Reports</h3>
+                        <div class="dropdown-container">
+                            <a href="adminListofStudents.html">List of Students</a>
+                            <a href="adminListofCapstones.html">List of Research<br>Titles</a>
+                        </div>
+                    </div>
+                    <div class="nav-option optionActive">
+                        <img src="/images/request.png" class="nav-img" alt="requests">
+                        <h3>Requests</h3>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="main" id="request-container">
+        </div>
+    </div>
+    <div id="logoutModal" class="logout-modal">
+        <div class="modal-cont">
+            <h2>Logout Confirmation</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="button-group">
+                <button type="button" class="btn-logout" id="signoutButton">Logout</button>
+                <button type="button" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-header">
+            <img class="profile-pic" alt="Admin Profile Picture">
+            <h3 id="profileName"></h3>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="profile-actions">
+            <button class="view-profile-button" onclick="location.href='admiViewProfile.html'">My Profile</button>
+            <button id="showLogoutModal">Logout</button>
+        </div>
+    </div>
+    <script type="module" rel="javascript" src="/js/adminProfile.js"></script>
+    <script type="module" rel="javascript" src="/js/adminLogout.js"></script>
+    <script rel="javascript" src="/js/adminListofRequests.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getDatabase, ref as dbRef, get } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-database.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHnoQ42UH9XorjdBsN4do1pKlWSRZVrCw",
+            authDomain: "re-search-9c52f.firebaseapp.com",
+            databaseURL: "https://re-search-9c52f-default-rtdb.firebaseio.com",
+            projectId: "re-search-9c52f",
+            storageBucket: "re-search-9c52f.appspot.com",
+            messagingSenderId: "915263512573",
+            appId: "1:915263512573:web:fc6961e880ce8fb1010394",
+            measurementId: "G-R0Y7ZMM3XV"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+        const auth = getAuth();
+        const storage = getStorage();
+
+        const statusMapping = {
+            'Approved': 'status-approved',
+            'Returned': 'status-returned',
+            'Pending': 'status-pending-approval'
+        };
+
+        function loadAdviserRequestData() {
+            const booksRef = dbRef(db, 'Books');
+
+            get(booksRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const booksData = snapshot.val();
+                    const requestsContainer = document.getElementById('request-container');
+                    requestsContainer.innerHTML = '';
+
+                    for (const bookUid in booksData) {
+                        const requestData = booksData[bookUid];
+                        const adviserUID = requestData.adviserUID;
+                        const projectTitle = requestData.title || 'No title';
+                        const year = requestData.year || 'No year';
+                        const state = requestData.state || 'No state';
+
+                        const requestContainer = document.createElement('div');
+                        requestContainer.classList.add('request-container');
+
+                        requestContainer.innerHTML = `
+                        <div class="request-info">
+                            <h3 class="request-name" id="adviserName-${bookUid}">Loading...</h3>
+                            <p class="request-email" id="adviserEmail-${bookUid}" style="font-style: italic; font-size: 0.8em;">Loading...</p>
+                        </div>
+                        <div class="request-title">
+                            <p class="research-title"><em>${projectTitle}</em></p>
+                            <div class="request-buttons">
+                                <button class="btn-preview" onclick="previewResearch('${requestData.abstracturl}')">View Abstract</button>
+                                <button class="btn-imrad" onclick="previewIMRAD('${requestData.url}')">View IMRAD</button>
+                            </div>
+                        </div>
+                        <div class="request-status-container">
+                            <p class="date">Date Published: ${year}</p>
+                            <p>Status: <span class="status-text">${state}</span></p>
+                        </div>
+                    `;
+
+                        updateRequestStatus(requestContainer.querySelector('.status-text'), state);
+                        requestsContainer.appendChild(requestContainer);
+
+                        // Fetch adviser info from Research Teachers node
+                        const adviserRef = dbRef(db, `Research Teacher/${adviserUID}`);
+                        get(adviserRef).then(adviserSnapshot => {
+                            if (adviserSnapshot.exists()) {
+                                const adviserData = adviserSnapshot.val();
+                                document.getElementById(`adviserName-${bookUid}`).textContent = adviserData.name;
+                                document.getElementById(`adviserEmail-${bookUid}`).textContent = adviserData.email;
+                            } else {
+                                console.error('No adviser data available for UID:', adviserUID);
+                            }
+                        }).catch(error => {
+                            console.error("Error fetching adviser data:", error);
+                        });
+                    }
+                } else {
+                    console.log('No books data available');
+                }
+            }).catch((error) => {
+                console.error("Error retrieving adviser request data:", error);
+            });
+        }
+
+        window.previewResearch = function (abstracturl) {
+            const abstractStorageRef = storageRef(storage, abstracturl);
+
+            getDownloadURL(abstractStorageRef)
+                .then((url) => {
+                    window.open(url, '_blank');
+                })
+                .catch((error) => {
+                    console.error("Error fetching the PDF URL:", error);
+                });
+        }
+
+        window.previewIMRAD = function (url) {
+            const imradStorageRef = storageRef(storage, url);
+
+            getDownloadURL(imradStorageRef)
+                .then((url) => {
+                    window.open(url, '_blank');
+                })
+                .catch((error) => {
+                    console.error("Error fetching the PDF URL:", error);
+                });
+        }
+
+        function updateRequestStatus(statusTextElement, state) {
+            statusTextElement.classList.remove('status-approved', 'status-returned', 'status-pending-approval');
+
+            if (statusMapping[state]) {
+                statusTextElement.classList.add(statusMapping[state]);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            loadAdviserRequestData();
+        });
+
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+    </script>
+</body>
+
+</html>
